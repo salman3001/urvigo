@@ -9,4 +9,9 @@ export default [
     to: { name: "second-page" },
     icon: { icon: "tabler-file" },
   },
+  {
+    title: "Login page",
+    to: { name: "auth-login" },
+    icon: { icon: "tabler-file" },
+  },
 ];

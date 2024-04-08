@@ -131,6 +131,9 @@ dependencies:
   vuetify:
     specifier: 3.5.2
     version: 3.5.2(typescript@5.3.3)(vite-plugin-vuetify@2.0.1)(vue-i18n@9.10.1)(vue@3.3.13)
+  vuetify-sonner:
+    specifier: ^0.3.14
+    version: 0.3.14(vue@3.3.13)(vuetify@3.5.2)
   webfontloader:
     specifier: 1.6.28
     version: 1.6.28
@@ -10887,6 +10890,10 @@ packages:
       vue: 3.3.13(typescript@5.3.3)
     dev: true
 
+  /vue-sonner@1.1.2:
+    resolution: {integrity: sha512-yg4f5s0a3oiiI7cNvO0Dajux1Y7s04lxww3vnQtnwQawJ3KqaKA9RIRMdI9wGTosRGIOwgYFniFRGl4+IuKPZw==}
+    dev: false
+
   /vue3-apexcharts@1.5.2(apexcharts@3.46.0)(vue@3.3.13):
     resolution: {integrity: sha512-rGbgUJDjtsyjfRF0uzwDjzt8+M7ICSRAbm1N9KCDiczW8BSpbEZuaEsJDJYnJuLFIIVXIGilYzIcjNBf6NbeYA==}
     peerDependencies:
@@ -10921,6 +10928,17 @@ packages:
       '@vue/server-renderer': 3.3.13(vue@3.3.13)
       '@vue/shared': 3.3.13
       typescript: 5.3.3
+
+  /vuetify-sonner@0.3.14(vue@3.3.13)(vuetify@3.5.2):
+    resolution: {integrity: sha512-T4SmaRCw4LOlxzPNKwfJP042uhVYf5DpK3Xqu2QSOk3Yb8hBT6W6mhwqrdM/QbGzFFMN4gVMRxt5Uyb/OxcVYw==}
+    peerDependencies:
+      vue: 3.3.13
+      vuetify: ^3.3.0
+    dependencies:
+      vue: 3.3.13(typescript@5.3.3)
+      vue-sonner: 1.1.2
+      vuetify: 3.5.2(typescript@5.3.3)(vite-plugin-vuetify@2.0.1)(vue-i18n@9.10.1)(vue@3.3.13)
+    dev: false
 
   /vuetify@3.5.2(typescript@5.3.3)(vite-plugin-vuetify@2.0.1)(vue-i18n@9.10.1)(vue@3.3.13):
     resolution: {integrity: sha512-H/g9+8Loykt50qe9mruHkwWsAIgfQ8gO+SPTAV2uaCFmfYPSFRfu0aGcZ42iWu4bZ9ZkgswIIDaVsfnKINd8yg==}

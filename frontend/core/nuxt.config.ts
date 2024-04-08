@@ -68,6 +68,7 @@ export default defineNuxtConfig({
       join(currentDir, "./@core/utils"),
       join(currentDir, "./@core/composable/"),
       join(currentDir, "./plugins/*/composables/*"),
+      join(currentDir, "./stores"),
     ],
     presets: [],
   },
@@ -152,7 +153,7 @@ export default defineNuxtConfig({
   },
 
   build: {
-    transpile: ["vuetify"],
+    transpile: ["vuetify", "vue-sonner"],
   },
 
   modules: ["@vueuse/nuxt", "@nuxtjs/device", "@pinia/nuxt"],

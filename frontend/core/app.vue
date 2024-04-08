@@ -4,6 +4,7 @@ import ScrollToTop from '@core/components/ScrollToTop.vue'
 import initCore from '@core/initCore'
 import { initConfigStore, useConfigStore } from '@core/stores/config'
 import { hexToRgb } from '@layouts/utils'
+import { VSonner } from 'vuetify-sonner'
 
 const { global } = useTheme()
 
@@ -21,6 +22,9 @@ if (isMobile)
   <VLocaleProvider :rtl="configStore.isAppRTL">
     <!-- ℹ️ This is required to set the background color of active nav link based on currently active global theme's primary -->
     <VApp :style="`--v-global-theme-primary: ${hexToRgb(global.current.value.colors.primary)}`">
+      <ClientOnly>
+        <VSonner />
+      </ClientOnly>
       <NuxtLayout>
         <NuxtPage />
       </NuxtLayout>
