@@ -1,0 +1,18 @@
+<input type="checkbox" id="modal" class="modal-toggle" />
+<div class="modal">
+  <div class="modal-box p-0 ">
+    <div class="bg-base-200 px-4 py-2 flex justify-between items-center">
+      <div>
+        <h3 id="modal-title" class="text-lg font-bold"></h3>
+        <p id="modal-desc" class="text-xs"></p>
+      </div>
+      <div>
+        <label class="cursor-pointer btn btn-sm btn-square text-black bg-base-300 " for="modal">X</label>
+      </div>
+    </div>
+    <div id="modal-content" class="p-4">
+      @!component('components/spinner')
+    </div>
+  </div>
+  <label class="modal-backdrop backdrop-blur-sm"></label>
+</div>

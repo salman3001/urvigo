@@ -1,0 +1,258 @@
+@layout('layouts/adminLayout')
+@set('title', 'Home page')
+@set('$', flashMessages)
+@set('fl', flashMessages.all())
+
+
+@section('body')
+<section class="mt-8 mb-16">
+  <div class="flex items-center gap-4">
+    <a href="{{route('admin_users.index')}}">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+        class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+      </svg>
+    </a>
+    <div class="flex flex-col items-center">
+      <h1 class="text-2xl font-bold">Edit User</h1>
+      <p class="text-base-400 text-sm">Add user details</p>
+    </div>
+  </div>
+  <form action=" {{route('admin_users.update', {id:user.id}, { qs: { _method: 'PUT' } }) }}" method="post" class="mt-4"
+    enctype="multipart/form-data">
+    {{ csrfField() }}
+    <div class="space-y-4">
+      <p class="text-xl font-semibold">General Information</p>
+      <div class="flex flex-col  sm:flex-row gap-4">
+        @!component('components/imageInput',{
+        url:user?.avatar?.url && await driveUrl(user?.avatar?.url),
+        name:'image'
+        })
+        <div class="w-full flex flex-wrap gap-4">
+          <div class="form-control w-full max-w-xs">
+            <label class="">
+              <span class="label-text">Email</span>
+            </label>
+            <input type="text" placeholder="Type here" class="input input-bordered w-full max-w-md " name="user[email]"
+              value="{{user.email ?? "" }}" />
+            <span class="text-red-500">{{fl?.errors['user.email'] ?? "" }}</span>
+          </div>
+          {{-- <div class="form-control w-full max-w-xs">
+            <label class="">
+              <span class="label-text">Password</span>
+            </label>
+            <input type="password" placeholder="Type here"
+              class="input input-bordered w-full max-w-md {{fl?.errors?.password && " input-error"}}" name="password" />
+            <span class="text-red-500">{{fl?.errors?.password ?? "" }}</span>
+          </div> --}}
+          <div class="form-control w-full max-w-xs">
+            <label class="">
+              <span class="label-text">First name</span>
+            </label>
+            <input type="text" placeholder="Type here"
+              class="input input-bordered w-full  max-w-md {{fl?.errors['user.firstName'] && " input-error"}}"
+              name="user[firstName]" value="{{user.firstName ?? "" }}" />
+            <span class="text-red-500">{{fl?.errors['user.firstName'] ??"" }}</span>
+          </div>
+          <div class="form-control w-full max-w-xs">
+            <label class="">
+              <span class="label-text">Last Name</span>
+            </label>
+            <input type="text" placeholder="Type here"
+              class="input input-bordered w-full  max-w-md {{fl?.errors['user.lastName'] && " input-error"}}"
+              name="user[lastName]" value="{{user.lastName ?? ""  }}" />
+            <span class=" text-red-500">{{fl?.errors['user.lastName'] ??"" }}</span>
+          </div>
+          <div class="form-control w-full max-w-xs">
+            <label class="">
+              <span class="label-text">Phone</span>
+            </label>
+            <input type="number" placeholder="Type here"
+              class="input input-bordered w-full  max-w-md {{fl?.errors['user.phone'] && " input-error"}}"
+              name="user[phone]" value="{{user.phone ?? "" }}" />
+            <span class="text-red-500">{{fl?.errors['user.phone'] ?? "" }}</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="space-y-4 mt-8">
+      <p class="text-xl font-semibold">Role Information</p>
+      <div class="flex flex-col  sm:flex-row gap-4">
+        <div class="w-full flex flex-wrap gap-4">
+          <div class="form-control">
+            <label class="label cursor-pointer gap-2">
+              <input type="checkbox" class="toggle" name="user[isActive]" value="1" {{user.isActive==1 && "checked"
+                }} />
+              <span class="label-text ">Activate</span>
+            </label>
+          </div>
+        </div>
+        <div class="form-control w-full max-w-2xl">
+          <label class="">
+            <span class="label-text">Select Role</span>
+          </label>
+          <select class="select select-bordered " name="role[id]">
+            <option disabled selected>Role</option>
+            @each(role in roles)
+            <option value="{{role.id}}" {{user?.roleId==role.id && "selected" }}>{{role.name}}
+            </option>
+            @endeach
+          </select>
+        </div>
+
+      </div>
+    </div>
+    <div class="space-y-4 mt-8">
+      <p class="text-xl font-semibold">Location Information</p>
+      <div class="flex flex-col  sm:flex-row gap-4">
+        <div class="w-full flex flex-wrap gap-4">
+          <div class="form-control w-full max-w-2xl">
+            <label class="">
+              <span class="label-text">Adress</span>
+            </label>
+            <input type="text" placeholder="Type here"
+              class="input input-bordered w-full max-w-2xl {{fl?.errors['address.address'] && 'input-error'}}"
+              name="address[address]" value="{{user?.address?.address ?? ""}}" />
+            <span class="text-red-500">{{fl?.errors['address.address'] ??"" }}</span>
+          </div>
+
+          <div class="form-control w-full max-w-2xl">
+            <label class="">
+              <span class="label-text">Country</span>
+            </label>
+            <select class="select select-bordered " name="address[countryId]" disabled>
+              <option disabled selected value="">Select Country</option>
+              @each(country in countries)
+              <option value="{{user?.address?.country && user?.address?.country.id==country.id && " selected" }}"
+                disabled>
+                {{country.name}}
+              </option>
+              @endeach
+            </select>
+          </div>
+          <div class="form-control w-full max-w-2xl">
+            <label class="">
+              <span class="label-text">State</span>
+            </label>
+            <select class="select select-bordered " name="address[stateId]" disabled>
+              <option disabled selected value="">Select State</option>
+              {{-- @each(state in States)
+              <option value="{{user?.address?.state && user?.address?.state.id==state.id && " selected" }}">
+                {{state.name}}
+              </option>
+              @endeach --}}
+            </select>
+          </div>
+          <div class="form-control w-full max-w-2xl">
+            <label class="">
+              <span class="label-text">City</span>
+            </label>
+            <select class="select select-bordered " name="address[cityId]" disabled>
+              <option disabled selected value="">Select City</option>
+              {{-- @each(city in cities)
+              <option value="{{user?.address?.city && user?.address?.city.id==city.id && " selected" }}">
+                {{city.name}}
+              </option>
+              @endeach --}}
+            </select>
+          </div>
+          <div class="form-control w-full max-w-2xl">
+            <label class="">
+              <span class="label-text">Street</span>
+            </label>
+            <select class="select select-bordered " name="address[streetId]" disabled>
+              <option disabled selected value="">Select Street</option>
+              {{-- @each(street in cities)
+              <option value="{{user?.address?.city && user?.address?.city.id==city.id && " selected" }}">
+                {{city.name}}
+              </option>
+              @endeach --}}
+            </select>
+          </div>
+
+
+          <div class="form-control w-full max-w-xs">
+            <label class="">
+              <span class="label-text">Zipcode</span>
+            </label>
+            <input type="text" placeholder="Type here"
+              class="input input-bordered w-full  max-w-md {{fl?.errors['address.zip'] && 'input-error'}}"
+              name="address[zip]" value="{{user?.address?.zip??""}}" disabled />
+            <span class="text-red-500">{{fl?.errors['address.zip'] ?? "" }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="space-y-4 mt-8">
+      <p class="text-xl font-semibold">Url Information</p>
+      <div class="flex flex-col  sm:flex-row gap-4">
+        <div class="w-full flex flex-wrap gap-4">
+          <div class="form-control w-full max-w-xs ">
+            <label class="">
+              <span class="label-text">Personal Website</span>
+            </label>
+            <input type="text" placeholder="Type here" class="input input-bordered w-full max-w-md "
+              name="social[website]" value="{{user?.social?.website ?? ""}}" />
+          </div>
+          <div class="form-control w-full max-w-xs">
+            <label class="">
+              <span class="label-text">Facebook Url</span>
+            </label>
+            <input type="text" placeholder="Type here" class="input input-bordered w-full  max-w-md"
+              name="social[facebook]" value="{{user?.social?.facebook ?? ""}}" />
+          </div>
+          <div class="form-control w-full max-w-xs">
+            <label class="">
+              <span class="label-text">Twitter Url</span>
+            </label>
+            <input type="text" placeholder="Type here" class="input input-bordered w-full  max-w-md"
+              name="social[twitter]" value="{{user?.social?.twitter ?? ""}}" />
+          </div>
+          <div class="form-control w-full max-w-xs">
+            <label class="">
+              <span class="label-text">Instagram Url</span>
+            </label>
+            <input type="text" placeholder="Type here" class="input input-bordered w-full  max-w-md"
+              name="social[instagram]" value="{{user?.social?.instagram ?? ""}}" />
+          </div>
+          <div class="form-control w-full max-w-xs">
+            <label class="">
+              <span class="label-text">Pintrest Url</span>
+            </label>
+            <input type="text" placeholder="Type here" class="input input-bordered w-full  max-w-md"
+              name="social[pintrest]" value="{{user?.social?.pintrest ?? ""}}" />
+          </div>
+          <div class="form-control w-full max-w-xs">
+            <label class="">
+              <span class="label-text">VK Url</span>
+            </label>
+            <input type="text" placeholder="Type here" class="input input-bordered w-full  max-w-md" name="social[vk]"
+              value="{{user?.social?.vk ?? ""}}" />
+          </div>
+          <div class="form-control w-full max-w-xs">
+            <label class="">
+              <span class="label-text">Whatsapp Url</span>
+            </label>
+            <input type="text" placeholder="Type here" class="input input-bordered w-full  max-w-md"
+              name="social[whatsapp]" value="{{user?.social?.whatsapp ?? ""}}" />
+          </div>
+          <div class="form-control w-full max-w-xs">
+            <label class="">
+              <span class="label-text">Telegram Url</span>
+            </label>
+            <input type="text" placeholder="Type here" class="input input-bordered w-full  max-w-md"
+              name="social[telegram]" value="{{user?.social?.telegram ?? ""}}" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="flex justify-end mt-8 gap-8">
+      <a class="btn w-36 btn-sm text-base-400 bg-base-300 " href="{{ route('admin_users.index') }}">
+        Cancle
+      </a>
+      <button type="submit" class="btn w-36 btn-sm btn-primary">Save</button>
+    </div>
+  </form>
+</section>
+@end

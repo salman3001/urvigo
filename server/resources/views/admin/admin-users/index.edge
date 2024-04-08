@@ -1,0 +1,158 @@
+@layout('layouts/adminLayout')
+@set('title', 'Home page')
+
+
+@section('body')
+<section class=" my-8 lg:my-14">
+  <div class="flex flex-wrap gap-4 justify-between mt-8">
+    <div>
+      @!component('components/admin/searchInput',{
+      route:route('admin_users.index'),
+      value:query.search ?? ""
+      })
+    </div>
+    <div class="flex gap-4 flex-wrap">
+      <form id="role-form" action="{{ route('admin_users.index')}}">
+        <select class="select select-bordered select-sm" onchange="document.getElementById('role-form').submit()"
+          name="roleId">
+          <option disabled selected>Role</option>
+          @each(role in roles)
+          <option value="{{role.id}}" {{role.id==query.roleId && "selected" }}>{{role.name}}</option>
+          @endeach
+        </select>
+      </form>
+      <form id='isActive-form' action=" {{ route('admin_users.index')}}">
+
+        <select class="select select-bordered select-sm" onchange="document.getElementById('isActive-form').submit()"
+          name="isActive">
+          <option disabled selected>Status</option>
+          <option value="1" {{query.isActive=="1" && "selected" }}>Active</option>
+          <option value="0" {{query.isActive=="0" && "selected" }}>Inactive</option>
+        </select>
+      </form>
+      <a href="{{ route('admin_users.create') }}">
+        <button class="btn btn-primary btn-sm">+ Add User</button>
+      </a>
+    </div>
+  </div>
+  <div class=" overflow-x-scroll scrollbar-hide pb-16 mt-8">
+    <table class="table table-zebra mt-6 ">
+      <thead>
+        <tr>
+          <th>SNo.</th>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Actions</th>
+        <tr>
+      </thead>
+      <tbody>
+        @if(users)
+        @each((user,i) in users)
+        <tr>
+          <td>{{(users.currentPage-1)*users.perPage+(i+1) }}</td>
+          <td class="flex items-center gap-2">
+            <div class="avatar ">
+              <div class="w-6 rounded-full ring-2 {{user.isActive ===1 ? " ring-green-600":'ring-red-600' }}">
+                <img src="{{user.avatar ? await driveUrl(user.avatar.url) :'/images/dummy-profile.jpg'}}" />
+              </div>
+            </div>
+            {{user.firstName+" "+user.lastName}}
+          </td>
+          <td>{{user?.role ? user.role.name:""}}</td>
+          <td>{{user.phone}}</td>
+          <td>{{user.email}}</td>
+          <td>
+            @if(user.isActive==1)
+            <div class="badge badge-success badge-outline bg-base-200">Active</div>
+
+            @else
+            <div class="badge badge-error badge-outline bg-base-200">Inactive</div>
+            @end
+          </td>
+          <td>
+            <div class="dropdown  dropdown-bottom">
+              <label tabindex="0" class="btn btn-primary  font-normal text-white btn-sm normal-case w-max gap-1">
+                Select an Options
+              </label>
+              <ul class="p-1 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-32 border-t-4 border-black">
+                <li>
+                  <button class="text-sm text-start p-1" data-btn="change-role-btn"
+                    data-action="{{route('AdminUsersController.changeRole',{id:user.id})}}" data-partial="{{route("PartialsController.getPartial",{name:"changeRoleForm"},{qs:{currentRole:user?.role?.id}})}}">
+                    Change Role
+                  </button>
+                </li>
+                <li>
+                  <button data-btn="ban-user-btn" data-action="{{route('AdminUsersController.banUser',{id:user.id})}}"
+                    data-partial="{{route("PartialsController.getPartial",{name:"banUserForm"})}}"
+                    class="text-sm text-start p-1">Ban
+                    User
+                  </button>
+                </li>
+                <li><a href="{{ route('admin_users.edit',{id:user.id})}}" class="text-sm p-1">Edit User</a></li>
+                <li>
+                  <button class="text-sm text-start p-1" data-btn="delete-user-btn"
+                    data-action="{{route('AdminUsersController.destroy',{id:user.id},{qs:{_method:'DELETE'}})}}"
+                    data-partial="{{route("PartialsController.getPartial",{name:"deleteAdminUserForm"})}}">Delete
+                    User</a>
+                  </button>
+
+                </li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+        @endeach
+        @endif
+      </tbody>
+    </table>
+  </div>
+  <div class=" mt-4 flex justify-end">
+    @!component('components/pagination',{
+    prevPageUrl:users.getPreviousPageUrl(),
+    pages:users.getUrlsForRange(users.firstPage, users.lastPage),
+    nextPageUrl:users.getNextPageUrl()
+    })
+  </div>
+
+</section>
+<script>
+  $(document).ready(()=>{
+    //ban user
+    $('[data-btn="ban-user-btn"]').on('click',function(){
+      $('#modal').prop("checked",true)
+      $('#modal-content').html($('#spinner').html())
+      $('#modal-title').text('Ban User')
+      $('#modal-desc').text('User status will be set inactive')
+      $('#modal-content').load($(this).data('partial'),()=>{
+        $('#banUserForm').attr('action',$(this).data('action'))
+      })
+    })
+
+     //delete user
+     $('[data-btn="delete-user-btn"]').on('click',function(){
+      $('#modal').prop("checked",true)
+      $('#modal-content').html($('#spinner').html())
+      $('#modal-title').text('Delete User')
+      $('#modal-desc').text('This action can not be undone')
+      $('#modal-content').load($(this).data('partial'),()=>{
+        $('#deleteAdminUserForm').attr('action',$(this).data('action'))
+      })
+    })
+
+    //chnage user role
+    $('[data-btn="change-role-btn"]').on('click',function(){
+      $('#modal').prop("checked",true)
+      $('#modal-content').html($('#spinner').html())
+      $('#modal-title').text('Chnage User Role')
+      $('#modal-desc').text('This action will chnage users current role')
+      $('#modal-content').load($(this).data('partial'),()=>{
+        $('#changeRoleForm').attr('action',$(this).data('action'))
+      })
+    })
+
+  })
+</script>
+@end

@@ -1,0 +1,30 @@
+{
+  "extends": "adonis-preset-ts/tsconfig.json",
+  "include": ["**/*", "../1708567743664_vendor_users.ts"],
+  "exclude": ["node_modules", "build"],
+  "compilerOptions": {
+    "outDir": "build",
+    "rootDir": "./",
+    "baseUrl": "./",
+    "sourceMap": true,
+    "paths": {
+      "App/*": ["./app/*"],
+      "Config/*": ["./config/*"],
+      "Contracts/*": ["./contracts/*"],
+      "Database/*": ["./database/*"]
+    },
+    "types": [
+      "@adonisjs/core",
+      "@adonisjs/repl",
+      "@japa/preset-adonis/build/adonis-typings",
+      "@adonisjs/lucid",
+      "@adonisjs/auth",
+      "adonis-responsive-attachment",
+      "@adonisjs/attachment-lite",
+      "@adonisjs/bouncer",
+      "@adonisjs/mail",
+      "@adonisjs/view",
+      "@rlanz/bull-queue"
+    ]
+  }
+}
