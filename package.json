@@ -1,0 +1,20 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server":"pnpm --filter urvigo-server",
+    "frontend-core":"pnpm --filter urvigo-frontend-core",
+    "frontend-web":"pnpm --filter urvigo-frontend-web",
+    "frontend-admin":"pnpm --filter urvigo-frontend-admin",
+    "frontend-vendor":"pnpm --filter urvigo-frontend-vendor",
+    "nuxt-layers":"pnpm --filter urvigo-frontend-core --filter urvigo-frontend-web --filter urvigo-frontend-admin --filter urvigo-frontend-vendor"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
+
