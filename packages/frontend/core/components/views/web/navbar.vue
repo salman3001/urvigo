@@ -1,67 +1,74 @@
 <script setup lang="ts">
-import type { RouteLocationRaw } from 'vue-router/auto'
-import { useDisplay } from 'vuetify'
+import type { RouteLocationRaw } from "vue-router/auto";
+import { useDisplay } from "vuetify";
 
-import { useWindowScroll } from '@vueuse/core'
-import navImg from '@images/front-pages/misc/nav-item-col-img.png'
+import { useWindowScroll } from "@vueuse/core";
+import navImg from "@images/front-pages/misc/nav-item-col-img.png";
 
-import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue'
-import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
-import { themeConfig } from '@themeConfig'
-import UserProfile from '@/layouts/components/UserProfile.vue'
-import NavBarNotifications from '@/layouts/components/NavBarNotifications.vue'
+import NavbarThemeSwitcher from "@/layouts/components/NavbarThemeSwitcher.vue";
+import { VNodeRenderer } from "@layouts/components/VNodeRenderer";
+import { themeConfig } from "@themeConfig";
+import UserProfile from "@/layouts/components/UserProfile.vue";
+import NavBarNotifications from "@/layouts/components/NavBarNotifications.vue";
 
-const props = defineProps({
-  activeId: String,
-})
-
-const display = useDisplay()
-const { user } = useAuth()
+const display = useDisplay();
+const { user } = useAuth();
 
 interface navItem {
-  name: string
-  to: RouteLocationRaw
+  name: string;
+  to: RouteLocationRaw;
 }
 
 interface MenuItem {
-  listTitle: string
-  listIcon: string
-  navItems: navItem[]
+  listTitle: string;
+  listIcon: string;
+  navItems: navItem[];
 }
 
-const navMenuItems = ['Home', 'Services', 'Service Requirements']
+const navMenuItems = [
+  { label: "Home", link: routes.home },
+  { label: "Services", link: routes.services.list },
+  { label: "Service Requirements", link: routes.service_requirement.list },
+];
 
-const { y } = useWindowScroll()
+const { y } = useWindowScroll();
 
-const route = useRoute()
-const router = useRouter()
+const route = useRoute();
+const router = useRouter();
+const sidebar = ref(false);
 
-const sidebar = ref(false)
+watch(
+  () => display,
+  () => {
+    return display.mdAndUp ? (sidebar.value = false) : sidebar.value;
+  },
+  { deep: true },
+);
 
-watch(() => display, () => {
-  return display.mdAndUp ? sidebar.value = false : sidebar.value
-}, { deep: true })
-
-const isMenuOpen = ref(false)
-const isMegaMenuOpen = ref(false)
+const isMenuOpen = ref(false);
+const isMegaMenuOpen = ref(false);
 
 const menuItems: MenuItem[] = [
   {
-    listTitle: 'Service Requirement',
-    listIcon: 'tabler-layout-grid',
+    listTitle: "Service Requirement",
+    listIcon: "tabler-layout-grid",
     navItems: [
-      { name: 'My Requirement', to: { path: '' } },
-      { name: 'Post Requirement', to: { path: '' } },
+      { name: "My Requirement", to: { path: routes.service_requirement.list } },
+      {
+        name: "Post Requirement",
+        to: { path: routes.service_requirement.create },
+      },
       // { name: 'Payment', to: { name: 'front-pages-payment' } },
       // { name: 'Checkout', to: { name: 'front-pages-checkout' } },
       // { name: 'Help Center', to: { name: 'front-pages-help-center' } },
     ],
   },
   {
-    listTitle: 'Bookings',
-    listIcon: 'tabler-lock-open',
+    listTitle: "Bookings",
+    listIcon: "tabler-lock-open",
     navItems: [
-      { name: 'My Bookings', to: { path: '' } },
+      { name: "My Bookings", to: { path: routes.bookings.list } },
+      { name: "My Custom Bookings", to: { path: routes.custom_bookings.list } },
       // { name: 'Login (Cover)', to: { name: 'pages-authentication-login-v2' } },
       // { name: 'Register (Basic)', to: { name: 'pages-authentication-register-v1' } },
       // { name: 'Register (Cover)', to: { name: 'pages-authentication-register-v2' } },
@@ -73,30 +80,37 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    listTitle: 'Other',
-    listIcon: 'tabler-photo',
+    listTitle: "Other",
+    listIcon: "tabler-photo",
     navItems: [
-      { name: 'Pricing', to: { path: '' } },
-      { name: 'Help Center', to: { path: '' } },
-      { name: 'Blogs', to: { path: '' } },
-      { name: 'Contact', to: { path: '' } },
-      { name: 'About', to: { path: '' } },
+      { name: "Pricing", to: { path: routes.pricing } },
+      { name: "Help Center", to: { path: routes.help_center.list } },
+      { name: "FAQ", to: { path: routes.faqs } },
+      { name: "Blogs", to: { path: routes.blogs.list } },
+      { name: "Contact", to: { path: routes.contact } },
+      { name: "About", to: { path: routes.about } },
       // { name: 'Verify Email (Basic)', to: { name: 'pages-authentication-verify-email-v1' } },
       // { name: 'Verify Email (Cover)', to: { name: 'pages-authentication-verify-email-v2' } },
       // { name: 'Two Steps (Basic)', to: { name: 'pages-authentication-two-steps-v1' } },
       // { name: 'Two Steps (Cover)', to: { name: 'pages-authentication-two-steps-v2' } },
     ],
   },
-]
+];
 
 const isCurrentRoute = (to: RouteLocationRaw) => {
-  return route.matched.some(_route => _route.path.startsWith(router.resolve(to).path))
+  return route.matched.some((_route) =>
+    _route.path.startsWith(router.resolve(to).path),
+  );
 
   // ℹ️ Below is much accurate approach if you don't have any nested routes
   // return route.matched.some(_route => _route.path === router.resolve(to).path)
-}
+};
 
-const isPageActive = computed(() => menuItems.some(item => item.navItems.some(listItem => isCurrentRoute(listItem.to))))
+const isPageActive = computed(() =>
+  menuItems.some((item) =>
+    item.navItems.some((listItem) => isCurrentRoute(listItem.to)),
+  ),
+);
 </script>
 
 <template>
@@ -105,31 +119,61 @@ const isPageActive = computed(() => menuItems.some(item => item.navItems.some(li
     <!-- Nav items -->
     <div>
       <div class="d-flex flex-column gap-y-4 pa-4">
-        <NuxtLink v-for="(item, index) in navMenuItems" :key="index" :to="item" class="nav-link font-weight-medium"
-          :class="[props.activeId?.toLocaleLowerCase().replace('-', ' ') === item.toLocaleLowerCase() ? 'active-link' : '']">
-          {{ item }}
+        <NuxtLink
+          v-for="(item, index) in navMenuItems"
+          :key="index"
+          :to="item.link"
+          class="nav-link font-weight-medium"
+          :class="[route.path === item.link ? 'active-link' : '']"
+        >
+          {{ item.label }}
         </NuxtLink>
 
         <div class="font-weight-medium cursor-pointer">
-          <div :class="[isMenuOpen ? 'mb-6 active-link' : '', isPageActive ? 'active-link' : '']"
-            style="color: rgba(var(--v-theme-on-surface));" class="page-link" @click="isMenuOpen = !isMenuOpen">
+          <div
+            :class="[
+              isMenuOpen ? 'mb-6 active-link' : '',
+              isPageActive ? 'active-link' : '',
+            ]"
+            style="color: rgba(var(--v-theme-on-surface))"
+            class="page-link"
+            @click="isMenuOpen = !isMenuOpen"
+          >
             Menu
-            <VIcon :icon="isMenuOpen ? 'tabler-chevron-up' : 'tabler-chevron-down'" />
+            <VIcon
+              :icon="isMenuOpen ? 'tabler-chevron-up' : 'tabler-chevron-down'"
+            />
           </div>
 
           <div class="px-4" :class="isMenuOpen ? 'd-block' : 'd-none'">
             <div v-for="(item, index) in menuItems" :key="index">
               <div class="d-flex align-center gap-x-3 mb-4">
-                <VAvatar variant="tonal" color="primary" rounded :icon="item.listIcon" />
+                <VAvatar
+                  variant="tonal"
+                  color="primary"
+                  rounded
+                  :icon="item.listIcon"
+                />
                 <div class="text-body-1 text-high-emphasis font-weight-medium">
                   {{ item.listTitle }}
                 </div>
               </div>
               <ul class="mb-6">
-                <li v-for="listItem in item.navItems" :key="listItem.name" style="list-style: none;"
-                  class="text-body-1 mb-4 text-no-wrap">
-                  <NuxtLink :to="listItem.to" :target="item.listTitle === 'Page' ? '_self' : '_blank'"
-                    class="mega-menu-item" :class="isCurrentRoute(listItem.to) ? 'active-link' : 'text-high-emphasis'">
+                <li
+                  v-for="listItem in item.navItems"
+                  :key="listItem.name"
+                  style="list-style: none"
+                  class="text-body-1 mb-4 text-no-wrap"
+                >
+                  <NuxtLink
+                    :to="listItem.to"
+                    class="mega-menu-item"
+                    :class="
+                      isCurrentRoute(listItem.to)
+                        ? 'active-link'
+                        : 'text-high-emphasis'
+                    "
+                  >
                     <VIcon icon="tabler-circle" :size="10" class="me-2" />
                     <span> {{ listItem.name }}</span>
                   </NuxtLink>
@@ -147,24 +191,53 @@ const isPageActive = computed(() => menuItems.some(item => item.navItems.some(li
     </div>
 
     <!-- Navigation drawer close icon -->
-    <VIcon id="navigation-drawer-close-btn" icon="tabler-x" size="20" @click="sidebar = !sidebar" />
+    <VIcon
+      id="navigation-drawer-close-btn"
+      icon="tabler-x"
+      size="20"
+      @click="sidebar = !sidebar"
+    />
   </VNavigationDrawer>
 
   <!-- 👉 Navbar for desktop devices  -->
   <div class="front-page-navbar">
     <div class="front-page-navbar">
       <VAppBar
-        :color="$vuetify.theme.current.dark ? 'rgba(var(--v-theme-surface),0.38)' : 'rgba(var(--v-theme-surface), 0.38)'"
-        :class="y > 10 ? 'app-bar-scrolled' : [$vuetify.theme.current.dark ? 'app-bar-dark' : 'app-bar-light', 'elevation-0']"
-        class="navbar-blur">
+        :color="
+          $vuetify.theme.current.dark
+            ? 'rgba(var(--v-theme-surface),0.38)'
+            : 'rgba(var(--v-theme-surface), 0.38)'
+        "
+        :class="
+          y > 10
+            ? 'app-bar-scrolled'
+            : [
+                $vuetify.theme.current.dark ? 'app-bar-dark' : 'app-bar-light',
+                'elevation-0',
+              ]
+        "
+        class="navbar-blur"
+      >
         <!-- toggle icon for mobile device -->
-        <IconBtn id="vertical-nav-toggle-btn" class="ms-n3 me-2 d-inline-block d-md-none" @click="sidebar = !sidebar">
-          <VIcon size="26" icon="tabler-menu-2" color="rgba(var(--v-theme-on-surface))" />
+        <IconBtn
+          id="vertical-nav-toggle-btn"
+          class="ms-n3 me-2 d-inline-block d-md-none"
+          @click="sidebar = !sidebar"
+        >
+          <VIcon
+            size="26"
+            icon="tabler-menu-2"
+            color="rgba(var(--v-theme-on-surface))"
+          />
         </IconBtn>
         <!-- Title and Landing page sections -->
         <div class="d-flex align-center">
           <VAppBarTitle class="me-6">
-            <NuxtLink :to="routes.home" class="d-flex gap-x-4" :class="$vuetify.display.mdAndUp ? 'd-none' : 'd-block'">
+            <NuxtLink
+              :to="routes.home"
+              class="d-flex gap-x-4"
+              :class="$vuetify.display.mdAndUp ? 'd-none' : 'd-block'"
+            >
               <div class="app-logo">
                 <VNodeRenderer :nodes="themeConfig.app.logo" />
                 <h1 class="app-logo-title">
@@ -176,50 +249,91 @@ const isPageActive = computed(() => menuItems.some(item => item.navItems.some(li
 
           <!-- landing page sections -->
           <div class="text-base align-center d-none d-md-flex">
-            <NuxtLink v-for="(item, index) in navMenuItems" :key="index"
-              :to="{ path: routes.home, hash: `#${item.toLowerCase().replace(' ', '-')}` }"
+            <NuxtLink
+              v-for="(item, index) in navMenuItems"
+              :key="index"
+              :to="item.link"
               class="nav-link font-weight-medium py-2 px-2 px-lg-4"
-              :class="[props.activeId?.toLocaleLowerCase().replace('-', ' ') === item.toLocaleLowerCase() ? 'active-link' : '']">
-              {{ item }}
+              :class="[route.path === item.link ? 'active-link' : '']"
+            >
+              {{ item.label }}
             </NuxtLink>
 
             <!-- Pages Menu -->
-            <span class="font-weight-medium cursor-pointer px-2 px-lg-4 py-2"
+            <span
+              class="font-weight-medium cursor-pointer px-2 px-lg-4 py-2"
               :class="isPageActive || isMegaMenuOpen ? 'active-link' : ''"
-              style="color: rgba(var(--v-theme-on-surface));">
+              style="color: rgba(var(--v-theme-on-surface))"
+            >
               Menu
               <VIcon icon="tabler-chevron-down" size="16" class="ms-2" />
-              <VMenu v-model="isMegaMenuOpen" open-on-hover activator="parent" transition="slide-y-transition"
-                location="bottom center" offset="16" content-class="mega-menu" location-strategy="static"
-                close-on-content-click>
+              <VMenu
+                v-model="isMegaMenuOpen"
+                open-on-hover
+                activator="parent"
+                transition="slide-y-transition"
+                location="bottom center"
+                offset="16"
+                content-class="mega-menu"
+                location-strategy="static"
+                close-on-content-click
+              >
                 <VCard max-width="1000">
                   <VCardText class="pa-8">
                     <div class="nav-menu">
                       <div v-for="(item, index) in menuItems" :key="index">
                         <div class="d-flex align-center gap-x-3 mb-6">
-                          <VAvatar variant="tonal" color="primary" rounded :icon="item.listIcon" />
-                          <div class="text-body-1 text-high-emphasis font-weight-medium">
+                          <VAvatar
+                            variant="tonal"
+                            color="primary"
+                            rounded
+                            :icon="item.listIcon"
+                          />
+                          <div
+                            class="text-body-1 text-high-emphasis font-weight-medium"
+                          >
                             {{ item.listTitle }}
                           </div>
                         </div>
                         <ul>
-                          <li v-for="listItem in item.navItems" :key="listItem.name" style="list-style: none;"
-                            class="text-body-1 mb-4 text-no-wrap">
-                            <NuxtLink class="mega-menu-item" :to="listItem.to"
-                              :target="item.listTitle === 'Page' ? '_self' : '_blank'"
-                              :class="isCurrentRoute(listItem.to) ? 'active-link' : 'text-high-emphasis'">
+                          <li
+                            v-for="listItem in item.navItems"
+                            :key="listItem.name"
+                            style="list-style: none"
+                            class="text-body-1 mb-4 text-no-wrap"
+                          >
+                            <NuxtLink
+                              class="mega-menu-item"
+                              :to="listItem.to"
+                              :class="
+                                isCurrentRoute(listItem.to)
+                                  ? 'active-link'
+                                  : 'text-high-emphasis'
+                              "
+                            >
                               <div class="d-flex align-center">
-                                <VIcon icon="tabler-circle" color="primary" :size="10" class="me-2" />
+                                <VIcon
+                                  icon="tabler-circle"
+                                  color="primary"
+                                  :size="10"
+                                  class="me-2"
+                                />
                                 <span>{{ listItem.name }}</span>
                               </div>
                             </NuxtLink>
                           </li>
                         </ul>
                       </div>
-                      <img :src="navImg" alt="Navigation Image" class="d-inline-block rounded-lg"
-                        style="border: 10px solid rgb(var(--v-theme-background));"
+                      <img
+                        :src="navImg"
+                        alt="Navigation Image"
+                        class="d-inline-block rounded-lg"
+                        style="
+                          border: 10px solid rgb(var(--v-theme-background));
+                        "
                         :width="$vuetify.display.lgAndUp ? '330' : '250'"
-                        :height="$vuetify.display.lgAndUp ? '330' : '250'">
+                        :height="$vuetify.display.lgAndUp ? '330' : '250'"
+                      />
                     </div>
                   </VCardText>
                 </VCard>
@@ -233,15 +347,20 @@ const isPageActive = computed(() => menuItems.some(item => item.navItems.some(li
         <div class="d-flex gap-x-4">
           <NavbarThemeSwitcher v-if="$vuetify.display.mdAndUp" />
 
-
           <!-- <VBtn v-if="$vuetify.display.lgAndUp" prepend-icon="tabler-shopping-cart" variant="elevated" color="primary"
             href="https://1.envato.market/vuexy_admin" target="_blank" rel="noopener noreferrer">
             Login
           </VBtn> -->
           <NavBarNotifications v-if="user" />
           <UserProfile v-if="user" />
-          <VBtn v-else prepend-icon="tabler-lock" variant="elevated" color="primary" :to="routes.auth.login"
-            rel="noopener noreferrer">
+          <VBtn
+            v-else
+            prepend-icon="tabler-lock"
+            variant="elevated"
+            color="primary"
+            :to="routes.auth.login"
+            rel="noopener noreferrer"
+          >
             Login
           </VBtn>
         </div>

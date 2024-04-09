@@ -5,5 +5,5 @@
   <br />
   <br />
   <br />
-  <VContainer id="team"> about </VContainer>
+  <ViewsWebServicesServiceList />
 </template>

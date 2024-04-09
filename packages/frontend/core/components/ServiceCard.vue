@@ -1,28 +1,30 @@
 <script setup lang="ts">
-import useGetImageUrl from '@/composables/useGetImageUrl';
+import useGetImageUrl from "@/composables/useGetImageUrl";
 
 defineProps<{
-    service:IService
-}>()
+  service: IService;
+}>();
 
-const getImageUrl=useGetImageUrl()
+const getImageUrl = useGetImageUrl();
 </script>
 
 <template>
-      <VCard>
-        <VImg
-          :src="getImageUrl(service?.thumbnail?.breakpoints?.thumbnail?.url)"
-          cover
-        />
+  <VCard class="ma-0" :to="routes.services.view(service?.slug)">
+    <VImg
+      :src="getImageUrl(service?.thumbnail?.breakpoints?.thumbnail?.url)"
+      cover
+    />
 
-        <VCardItem>
-          <VCardTitle>{{ service.name }}</VCardTitle>
-        </VCardItem>
+    <VCardItem>
+      <VCardTitle>{{ service.name }}</VCardTitle>
+    </VCardItem>
 
-        <VCardText>
-          {{ service?.short_desc }}
-        </VCardText>
-      </VCard>
+    <VCardText>
+      <p class="line-clamp-3">
+        {{ service?.short_desc }}
+      </p>
+    </VCardText>
+  </VCard>
 </template>
 
 <style lang="scss" scoped>

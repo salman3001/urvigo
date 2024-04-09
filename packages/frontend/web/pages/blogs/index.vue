@@ -5,5 +5,5 @@
   <br />
   <br />
   <br />
-  <VContainer id="team"> about </VContainer>
+  <VContainer id="team"> vview blog </VContainer>
 </template>

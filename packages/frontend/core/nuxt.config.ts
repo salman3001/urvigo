@@ -45,15 +45,12 @@ export default defineNuxtConfig({
     dirs: [
       {
         path: join(currentDir, "./@core/components"),
-        pathPrefix: false,
       },
       {
         path: join(currentDir, "./components/global"),
-        global: true,
       },
       {
         path: join(currentDir, "./components"),
-        pathPrefix: false,
       },
     ],
   },

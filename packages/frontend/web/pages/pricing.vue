@@ -1,3 +1,9 @@
+<script setup lang="ts"></script>
+
 <template>
-    <div>pricing</div>
+  <br />
+  <br />
+  <br />
+  <br />
+  <VContainer id="team"> pricing </VContainer>
 </template>

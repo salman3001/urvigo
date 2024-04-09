@@ -1,5 +1,9 @@
+<script setup lang="ts"></script>
+
 <template>
-    <div>
-        contact
-    </div>
+  <br />
+  <br />
+  <br />
+  <br />
+  <VContainer id="team"> contact</VContainer>
 </template>

@@ -1,54 +1,57 @@
 <script setup lang="ts">
-import { useMouse } from '@vueuse/core'
-import { useTheme } from 'vuetify'
-import { useGenerateImageVariant } from '@/@core/composable/useGenerateImageVariant'
-import joinArrow from '@images/front-pages/icons/Join-community-arrow.png'
-import heroDashboardImgDark from '@images/front-pages/landing-page/hero-dashboard-dark.png'
-import heroDashboardImgLight from '@images/front-pages/landing-page/hero-dashboard-light.png'
+import { useTheme } from "vuetify";
+import joinArrow from "@images/front-pages/icons/Join-community-arrow.png";
+import NavSearchBar from "@/layouts/components/NavSearchBar.vue";
 
-import heroElementsImgDark from '@images/front-pages/landing-page/hero-elements-dark.png'
-import heroElementsImgLight from '@images/front-pages/landing-page/hero-elements-light.png'
-import NavSearchBar from '@/layouts/components/NavSearchBar.vue'
-
-const theme = useTheme()
-
-const heroElementsImg = useGenerateImageVariant(heroElementsImgLight, heroElementsImgDark)
-const heroDashboardImg = useGenerateImageVariant(heroDashboardImgLight, heroDashboardImgDark)
-
-const { x, y } = useMouse({ touch: false })
-
-const translateMouse = computed(() => {
-  if (typeof window !== 'undefined') {
-    const rotateX = ref((window.innerHeight - (2 * y.value)) / 100)
-
-    return { transform: `perspective(1200px) rotateX(${rotateX.value < -40 ? -20 : rotateX.value}deg) rotateY(${(window.innerWidth - (2 * x.value)) / 100}deg) scale3d(1,1,1)` }
-  }
-})
+const theme = useTheme();
 </script>
 
 <template>
   <div id="home" :style="{ background: 'rgb(var(--v-theme-surface))' }">
     <div id="landingHero">
-      <div class="landing-hero" :class="theme.current.value.dark ? 'landing-hero-dark-bg' : 'landing-hero-light-bg'">
+      <div
+        class="landing-hero"
+        :class="
+          theme.current.value.dark
+            ? 'landing-hero-dark-bg'
+            : 'landing-hero-light-bg'
+        "
+      >
         <VContainer>
           <div class="hero-text-box text-center px-6">
             <h1 class="hero-title mb-4">
               One place to manage all your services
             </h1>
             <h6 class="mb-6 text-h6">
-              Streamline Your Services, Simplify Your Bookings: Your One-Stop Services solution.
+              Streamline Your Services, Simplify Your Bookings: Your One-Stop
+              Services solution.
             </h6>
             <div class="position-relative">
-              <h6 class="position-absolute hero-btn-item d-md-flex d-none text-h6 text-medium-emphasis mt-6">
+              <h6
+                class="position-absolute hero-btn-item d-md-flex d-none text-h6 text-medium-emphasis mt-6"
+              >
                 Join Community
-                <VImg :src="joinArrow" class="flip-in-rtl" width="54" height="31" />
+                <VImg
+                  :src="joinArrow"
+                  class="flip-in-rtl"
+                  width="54"
+                  height="31"
+                />
               </h6>
               <div class="d-flex flex-column flex-sm-row gap-2">
-                <VBtn :size="$vuetify.display.smAndUp ? 'large' : 'default'" :to="''" :active="false">
+                <VBtn
+                  :size="$vuetify.display.smAndUp ? 'large' : 'default'"
+                  :to="routes.services.list"
+                  :active="false"
+                >
                   Explore Services
                 </VBtn>
 
-                <VBtn :size="$vuetify.display.smAndUp ? 'large' : 'default'" :to="''" :active="false">
+                <VBtn
+                  :size="$vuetify.display.smAndUp ? 'large' : 'default'"
+                  :to="routes.service_requirement.create"
+                  :active="false"
+                >
                   PersonaliZe Service
                 </VBtn>
               </div>
@@ -205,7 +208,9 @@ section {
 }
 
 .landing-hero-light-bg {
-  background: url("@images/front-pages/backgrounds/hero-bg.png") center no-repeat, linear-gradient(138.18deg, #eae8fd 0%, #fce5e6 94.44%);
+  background:
+    url("@images/front-pages/backgrounds/hero-bg.png") center no-repeat,
+    linear-gradient(138.18deg, #eae8fd 0%, #fce5e6 94.44%);
   background-size: cover;
 }
 
