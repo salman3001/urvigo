@@ -57,13 +57,11 @@ interface AdditionalParams {
 }
 
 type IQs = {
-  search?: string,
-  orderBY?: string,
-  page?: number,
-  perPage?: number,
-
-} & Record<any, any>
-
+  search?: string;
+  orderBY?: string;
+  page?: number;
+  perPage?: number;
+} & Record<any, any>;
 
 type DeepPartial<T> = {
   [P in keyof T]?: DeepPartial<T[P]>;

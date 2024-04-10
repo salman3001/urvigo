@@ -5,46 +5,46 @@ import Connection from "./Connection.vue";
 import ProjectList from "./ProjectList.vue";
 import Teams from "./Teams.vue";
 
-// const router = useRoute("pages-user-profile-tab");
+const router = useRoute("pages-user-profile-tab");
 const profileTabData = ref<any>();
-const fetchAboutData = {};
-// const fetchAboutData = async () => {
-//   if (router.params.tab === "profile") {
-//     const data = await $api("/pages/profile", {
-//       query: {
-//         tab: router.params.tab,
-//       },
-//     }).catch((err) => console.log(err));
 
-//     profileTabData.value = data;
-//   }
-// };
+const fetchAboutData = async () => {
+  if (router.params.tab === "profile") {
+    const data = await $api("/pages/profile", {
+      query: {
+        tab: router.params.tab,
+      },
+    }).catch((err) => console.log(err));
 
-// watch(router, fetchAboutData, { immediate: true });
+    profileTabData.value = data;
+  }
+};
+
+watch(router, fetchAboutData, { immediate: true });
 </script>
 
 <template>
   <VRow v-if="profileTabData">
     <VCol md="4" cols="12">
-      <About :data="{}" />
+      <!-- <About :data="{}" /> -->
     </VCol>
 
     <VCol cols="12" md="8">
       <VRow>
         <VCol cols="12">
-          <ActivityTimeline />
+          <!-- <ActivityTimeline /> -->
         </VCol>
 
         <VCol cols="12" md="6">
-          <Connection :connections-data="profileTabData.connections" />
+          <!-- <Connection :connections-data="profileTabData.connections" /> -->
         </VCol>
 
         <VCol cols="12" md="6">
-          <Teams :teams-data="profileTabData.teamsTech" />
+          <!-- <Teams :teams-data="profileTabData.teamsTech" /> -->
         </VCol>
 
         <VCol cols="12">
-          <ProjectList />
+          <!-- <ProjectList /> -->
         </VCol>
       </VRow>
     </VCol>

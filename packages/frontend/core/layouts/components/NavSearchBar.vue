@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import Shepherd from "shepherd.js";
-import { withQuery } from "ufo";
 import type { RouteLocationRaw } from "vue-router";
-import AppTextField from "@core/components/app-form-elements/AppTextField.vue";
 // import type { SearchResults } from '@db/app-bar-search/types'
 import { useConfigStore } from "@core/stores/config";
 
@@ -156,22 +154,20 @@ const searchQuery = ref("");
 const router = useRouter();
 const searchResult = ref<any[]>([]);
 
-const fetchResults = async () => {
-  isLoading.value = true;
+// const fetchResults = async () => {
+//   isLoading.value = true;
 
-  const { data } = await useApi<any>(
-    withQuery("/app-bar/search", { q: searchQuery.value }),
-  );
+//   const { data } = await useApi<any>("");
 
-  searchResult.value = data.value;
+//   searchResult.value = data.value;
 
-  // ℹ️ simulate loading: we have used setTimeout for better user experience your can remove it
-  setTimeout(() => {
-    isLoading.value = false;
-  }, 500);
-};
+//   // ℹ️ simulate loading: we have used setTimeout for better user experience your can remove it
+//   setTimeout(() => {
+//     isLoading.value = false;
+//   }, 500);
+// };
 
-watch(searchQuery, fetchResults);
+// watch(searchQuery, fetchResults);
 
 const closeSearchBar = () => {
   isAppSearchBarVisible.value = false;
@@ -260,7 +256,7 @@ const LazyAppBarSearch = defineAsyncComponent(
 
     <!-- no data suggestion -->
 
-    <template #noDataSuggestion>
+    <!-- <template #noDataSuggestion>
       <div class="mt-9">
         <span class="d-flex justify-center text-disabled mb-2"
           >Try searching for</span
@@ -275,7 +271,7 @@ const LazyAppBarSearch = defineAsyncComponent(
           <span>{{ suggestion.title }}</span>
         </h6>
       </div>
-    </template>
+    </template> -->
 
     <!-- search result -->
 

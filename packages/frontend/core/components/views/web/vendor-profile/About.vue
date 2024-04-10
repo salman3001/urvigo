@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 interface Props {
-  data: any;
+  vendor: IVendorUser;
 }
 const props = defineProps<Props>();
 </script>
@@ -10,19 +10,7 @@ const props = defineProps<Props>();
     <VCardText>
       <p class="text-sm text-disabled">ABOUT</p>
 
-      <VList class="card-list text-medium-emphasis">
-        <!-- <VListItem v-for="item in props.data.about" :key="item.property">
-          <VListItemTitle>
-            <span class="d-flex align-center">
-              <VIcon :icon="item.icon" size="24" class="me-2" />
-              <div class="text-body-1 font-weight-medium me-2">
-                {{ item.property }}:
-              </div>
-              <div>{{ item.value }}</div>
-            </span>
-          </VListItemTitle>
-        </VListItem> -->
-      </VList>
+      <p>{{ vendor?.profile?.short_desc }}</p>
 
       <p class="text-sm text-disabled mt-6">CONTACTS</p>
 
