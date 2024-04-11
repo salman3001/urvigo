@@ -58,6 +58,9 @@ importers:
       apexcharts:
         specifier: 3.46.0
         version: 3.46.0
+      bignumber.js:
+        specifier: ^9.1.2
+        version: 9.1.2
       chart.js:
         specifier: 4.4.2
         version: 4.4.2
@@ -353,6 +356,9 @@ importers:
       apexcharts:
         specifier: 3.46.0
         version: 3.46.0
+      bignumber.js:
+        specifier: ^9.1.2
+        version: 9.1.2
       chart.js:
         specifier: 4.4.2
         version: 4.4.2
@@ -650,6 +656,9 @@ importers:
       apexcharts:
         specifier: 3.46.0
         version: 3.46.0
+      bignumber.js:
+        specifier: ^9.1.2
+        version: 9.1.2
       chart.js:
         specifier: 4.4.2
         version: 4.4.2
@@ -945,6 +954,9 @@ importers:
       apexcharts:
         specifier: 3.46.0
         version: 3.46.0
+      bignumber.js:
+        specifier: ^9.1.2
+        version: 9.1.2
       chart.js:
         specifier: 4.4.2
         version: 4.4.2

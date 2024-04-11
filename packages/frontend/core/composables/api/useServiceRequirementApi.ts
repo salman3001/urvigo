@@ -101,7 +101,7 @@ class UseServiceRequirementApi extends useBaseApi<
   }
 
   negotiate() {
-    const { fetcher, loading } = useFetchRef();
+    const { fetcher, loading, errors } = useFetchRef();
     const form = reactive(negotiateForm);
 
     const create = async (
@@ -137,6 +137,7 @@ class UseServiceRequirementApi extends useBaseApi<
       create,
       form,
       loading,
+      errors,
     };
   }
 }

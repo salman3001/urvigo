@@ -64,7 +64,7 @@ class UseVendorApi extends useBaseApi<
   }
 
   updateProfile() {
-    const { fetcher, loading } = useFetchRef();
+    const { fetcher, loading, errors } = useFetchRef();
     const form = reactive(updateProfileForm);
 
     const update = async (
@@ -99,6 +99,7 @@ class UseVendorApi extends useBaseApi<
       update,
       form,
       loading,
+      errors,
     };
   }
 
@@ -113,7 +114,7 @@ class UseVendorApi extends useBaseApi<
   }
 
   cretaeReview() {
-    const { fetch, loading } = usePostFetch();
+    const { fetch, loading, error } = usePostFetch();
     const form = reactive(createReviewForm);
 
     const cretaeReview = async (
@@ -148,6 +149,7 @@ class UseVendorApi extends useBaseApi<
       cretaeReview,
       form,
       loading,
+      error,
     };
   }
 }

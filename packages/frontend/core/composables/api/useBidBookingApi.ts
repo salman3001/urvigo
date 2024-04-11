@@ -44,7 +44,7 @@ class UseBidBookingApi extends useBaseApi<
   }
 
   updateStatus(initialForm: typeof updateStatusForm) {
-    const { fetcher, loading } = useFetchRef();
+    const { fetcher, loading, errors } = useFetchRef();
     const form = reactive(initialForm);
 
     const update = async (
@@ -80,6 +80,7 @@ class UseBidBookingApi extends useBaseApi<
       update,
       form,
       loading,
+      errors,
     };
   }
 }

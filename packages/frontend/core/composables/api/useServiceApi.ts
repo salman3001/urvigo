@@ -49,6 +49,11 @@ const createForm = {
   ],
 };
 
+const createReviewForm = {
+  rating: "",
+  message: "",
+};
+
 const updateForm: DeepPartial<typeof createForm> = {};
 
 class UseServiceApi extends useBaseApi<
@@ -83,6 +88,48 @@ class UseServiceApi extends useBaseApi<
     const show = async (slug: string): Promise<IResType<IService>> =>
       fetcher(`${this.baseUrl}/by-slug/${slug}`);
     return { show };
+  }
+
+  cretae_review() {
+    const { fetcher, loading, errors } = useFetchRef();
+    const form = reactive(createReviewForm);
+
+    const cretae_review = async (
+      serviceId: number,
+      cd?: {
+        onSuccess?: () => void;
+        onError?: () => void;
+      },
+    ) => {
+      loading.value = true;
+      const formData = convertToFormData(form);
+      try {
+        const res = await fetcher<IResType<IReview>>(
+          this.baseUrl + `/${serviceId}/reviews`,
+          {
+            method: "post",
+            body: formData,
+          },
+        );
+
+        if (res.success == true) {
+          cd?.onSuccess && cd?.onSuccess();
+        }
+
+        return res;
+      } catch (error) {
+        cd?.onError && cd?.onError();
+      }
+
+      loading.value = false;
+    };
+
+    return {
+      cretae_review,
+      form,
+      loading,
+      errors,
+    };
   }
 }
 

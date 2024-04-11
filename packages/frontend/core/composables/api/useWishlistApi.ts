@@ -35,7 +35,7 @@ class UseWishlistApi extends useBaseApi<
   }
 
   addItem(initialForm: typeof addItemFrom) {
-    const { fetcher, loading } = useFetchRef();
+    const { fetcher, loading, errors } = useFetchRef();
     const form = reactive(initialForm);
 
     const addItem = async (cd?: {
@@ -70,11 +70,12 @@ class UseWishlistApi extends useBaseApi<
       addItem,
       form,
       loading,
+      errors,
     };
   }
 
   deletItem() {
-    const { fetcher, loading } = useFetchRef();
+    const { fetcher, loading, errors } = useFetchRef();
 
     const deletItem = async (
       itemId: number,
@@ -108,6 +109,7 @@ class UseWishlistApi extends useBaseApi<
     return {
       deletItem,
       loading,
+      errors,
     };
   }
 }

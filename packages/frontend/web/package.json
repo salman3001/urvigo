@@ -28,6 +28,7 @@
     "@vueuse/core": "10.9.0",
     "@vueuse/math": "10.9.0",
     "apexcharts": "3.46.0",
+    "bignumber.js": "^9.1.2",
     "chart.js": "4.4.2",
     "cookie-es": "1.0.0",
     "date-fns": "^3.6.0",

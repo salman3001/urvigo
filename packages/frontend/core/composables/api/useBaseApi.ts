@@ -42,7 +42,7 @@ export class useBaseApi<
   }
 
   cretae() {
-    const { fetcher, loading } = useFetchRef();
+    const { fetcher, loading, errors } = useFetchRef();
     const form = reactive(this.creatForm);
 
     const create = async (cd?: {
@@ -74,11 +74,12 @@ export class useBaseApi<
       create,
       form,
       loading,
+      errors,
     };
   }
 
   update(initialForm: updateform) {
-    const { fetcher, loading } = useFetchRef();
+    const { fetcher, loading, errors } = useFetchRef();
     const form = reactive(initialForm);
 
     const update = async (
@@ -113,11 +114,12 @@ export class useBaseApi<
       update,
       form,
       loading,
+      errors,
     };
   }
 
   destroy() {
-    const { fetcher, loading } = useFetchRef();
+    const { fetcher, loading, errors } = useFetchRef();
 
     const destroy = async (
       id: number,
@@ -148,6 +150,7 @@ export class useBaseApi<
     return {
       destroy,
       loading,
+      errors,
     };
   }
 }

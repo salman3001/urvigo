@@ -44,7 +44,7 @@ class UseChatApi extends useBaseApi<
   }
 
   cretaeMessage() {
-    const { fetcher, loading } = useFetchRef();
+    const { fetcher, loading, errors } = useFetchRef();
     const form = reactive(messageForm);
 
     const create = async (
@@ -81,6 +81,7 @@ class UseChatApi extends useBaseApi<
       create,
       form,
       loading,
+      errors,
     };
   }
 }

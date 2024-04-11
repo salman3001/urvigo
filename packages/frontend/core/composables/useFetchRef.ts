@@ -12,19 +12,40 @@ export default function useFetchRef(opt?: {
   const token = useCookie("token");
   const authorization = `Bearer ${toRaw(token.value)}`;
   const loading = ref(false);
+  const errors = ref<
+    | {
+        field: string;
+        message: string;
+        rule: string;
+      }[]
+    | null
+  >(null);
 
   const onRequest = () => {
+    errors.value = null;
     loading.value = true;
   };
 
   const onResponse = (ctx: FetchContext<IResType<any>>) => {
     const success = ctx.response?._data?.success;
+    const errorsMessages = ctx.response?._data?.errors;
 
     loading.value = false;
+
+    if (errorsMessages) {
+      errors.value = errorsMessages;
+    }
 
     if (success == true) {
       opt?.onSuccess && opt?.onSuccess();
     } else if (success == false) {
+      errors.value = [
+        {
+          field: "",
+          message: ctx.response?._data?.message || "Something went wrong",
+          rule: "General Message",
+        },
+      ];
       opt?.onError && opt?.onError();
     }
 
@@ -64,5 +85,5 @@ export default function useFetchRef(opt?: {
     }
   };
 
-  return { fetchRef, loading, fetcher: creatFetch() };
+  return { fetchRef, loading, fetcher: creatFetch(), errors };
 }

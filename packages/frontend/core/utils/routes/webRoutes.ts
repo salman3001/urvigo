@@ -27,7 +27,7 @@ export default {
       `/custom-bookings/book-now-${requirementId}`,
   },
   vendor_profile: {
-    view: (id: number, tab: string) => `/vendor-profiles/vendor-profile-${id}`,
+    view: (id: number) => `/vendor-profiles/vendor-profile-${id}`,
   },
   services: {
     list: "/services",

@@ -34,7 +34,7 @@ class UseBidApi extends useBaseApi<
   }
 
   acceptNegotiate(initialForm: typeof acceptNegotiateForm) {
-    const { fetcher, loading } = useFetchRef();
+    const { fetcher, loading, errors } = useFetchRef();
     const form = reactive(initialForm);
 
     const acceptNegotiate = async (
@@ -70,6 +70,7 @@ class UseBidApi extends useBaseApi<
       acceptNegotiate,
       form,
       loading,
+      errors,
     };
   }
 }
