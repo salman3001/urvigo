@@ -18,13 +18,13 @@ const isVisible = defineModel<boolean>("isVisible");
     <VCard class="pa-2 pa-sm-10">
       <!-- 👉 Title -->
       <VCardItem class="text-center">
-        <VCardTitle>
+        <VCardTitle v-if="title">
           <h4 class="text-h4 mb-2">{{ title }}</h4>
         </VCardTitle>
-        <p class="text-body-1 mb-0">{{ subtitle }}</p>
+        <p class="text-body-1 mb-0" v-if="subtitle">{{ subtitle }}</p>
       </VCardItem>
 
-      <VCardText class="pt-6">
+      <VCardText class="pt-2">
         <slot />
       </VCardText>
     </VCard>

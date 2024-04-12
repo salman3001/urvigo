@@ -66,6 +66,7 @@ class UseServiceRequirementApi extends useBaseApi<
     orderBy: string | null;
     orderby_lowest_price: string | number | null;
     orderby_avg_rating: string | number | null;
+    perPage: number;
   }) {
     const { fetcher, loading } = useFetchRef();
 
@@ -125,6 +126,8 @@ class UseServiceRequirementApi extends useBaseApi<
         if (res.success == true) {
           cd?.onSuccess && cd?.onSuccess();
         }
+
+        return res;
       } catch (error) {
         console.log(error);
         cd?.onError && cd?.onError();

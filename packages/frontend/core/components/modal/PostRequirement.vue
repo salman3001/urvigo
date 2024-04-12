@@ -25,22 +25,19 @@ const creatRequirement = async () => {
   const { valid } = await formRef.value?.validate();
   if (valid) {
     await create({
-      onSuccess: () => {},
+      onSuccess: () => {
+        emit("submit");
+      },
     });
   }
-};
-
-const temp = (event: any) => {
-  form.budgetUnit = event.target.value;
-  event?.target?.blur();
 };
 </script>
 
 <template>
   <ModalBase
     v-model:is-visible="isVisible"
-    title="Add Review"
-    subtitle="Share your thoughts about this service"
+    title="Add Service Requirement"
+    subtitle="Please specify your service requirement"
   >
     <VForm
       ref="formRef"
@@ -81,9 +78,7 @@ const temp = (event: any) => {
           <FormSelectOrAdd
             label="Select Kewwords"
             v-model="form.keywords"
-            :items="data?.tags"
-            item-title="name"
-            item-value="name"
+            :items="data?.tags?.map((t) => t.name) || []"
             placeholder="Select Kewwords"
             chips
             multiple
@@ -108,8 +103,6 @@ const temp = (event: any) => {
             v-model="form.budgetUnit"
             :items="['Hourly', 'Fixed', 'Per Unit', 'Monthly']"
             placeholder="Select a Budget Unit"
-            chips
-            closable-chips
             :rules="[requiredValidator]"
           />
         </VCol>
@@ -121,20 +114,14 @@ const temp = (event: any) => {
           />
         </VCol>
         <VCol cols="12">
-          <VCard class="mb-6">
+          <VCard border class="mb-6">
             <VCardItem>
-              <template #title> Product Image </template>
-              <template #append>
-                <span
-                  class="text-primary font-weight-medium text-sm cursor-pointer"
-                  >Add Media from URL</span
-                >
-              </template>
+              <template #title> Images </template>
             </VCardItem>
 
             <VCardText>
               <DropZone
-                :max="2"
+                :max="5"
                 @change="(images) => (form.images = images.map((i) => i.file))"
               />
             </VCardText>

@@ -112,5 +112,13 @@ const {
       </div>
     </div>
   </VContainer>
-  <ModalPostRequirement v-model:is-visible="postModal" />
+  <ModalPostRequirement
+    v-model:is-visible="postModal"
+    @submit="
+      () => {
+        refresh();
+        postModal = false;
+      }
+    "
+  />
 </template>
