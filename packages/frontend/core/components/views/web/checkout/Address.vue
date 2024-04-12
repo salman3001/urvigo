@@ -1,17 +1,63 @@
 <script setup lang="ts">
+import googleHome from "@images/pages/google-home.png";
+import iphone11 from "@images/pages/iphone-11.png";
+
 interface Props {
-  currentStep?: number;
-  checkoutData: any;
+  summary?: IBookingSummary;
 }
-interface Emit {
-  (e: "update:currentStep", value: number): void;
-  (e: "update:checkout-data", value: CheckoutData): void;
-}
+
+const step = defineModel<number>("step", { required: true });
+const getImageUrl = useGetImageUrl();
+
 const props = defineProps<Props>();
 
-const emit = defineEmits<Emit>();
-
-const checkoutAddressDataLocal = ref(props.checkoutData);
+const checkoutData = ref({
+  cartItems: [
+    {
+      id: 1,
+      name: "Google - Google Home - White",
+      seller: "Google",
+      inStock: true,
+      rating: 4,
+      price: 299,
+      discountPrice: 359,
+      image: googleHome,
+      quantity: 1,
+      estimatedDelivery: "18th Nov 2021",
+    },
+    {
+      id: 2,
+      name: "Apple iPhone 11 (64GB, Black)",
+      seller: "Apple",
+      inStock: true,
+      rating: 4,
+      price: 899,
+      discountPrice: 999,
+      image: iphone11,
+      quantity: 1,
+      estimatedDelivery: "20th Nov 2021",
+    },
+  ],
+  promoCode: "",
+  orderAmount: 1198,
+  deliveryAddress: "home",
+  deliverySpeed: "free",
+  deliveryCharges: 0,
+  addresses: [
+    {
+      title: "John Doe (Default)",
+      desc: "4135 Parkway Street, Los Angeles, CA, 90017",
+      subtitle: "1234567890",
+      value: "home",
+    },
+    {
+      title: "ACME Inc.",
+      desc: "87 Hoffman Avenue, New York, NY, 10016",
+      subtitle: "1234567890",
+      value: "office",
+    },
+  ],
+});
 const isEditAddressDialogVisible = ref(false);
 
 const deliveryOptions = [
@@ -45,31 +91,6 @@ const resolveDeliveryBadgeData: any = {
   express: { color: "secondary", price: 10 },
   overnight: { color: "secondary", price: 15 },
 };
-
-const totalPriceWithDeliveryCharges = computed(() => {
-  checkoutAddressDataLocal.value.deliveryCharges = 0;
-  if (checkoutAddressDataLocal.value.deliverySpeed !== "free")
-    checkoutAddressDataLocal.value.deliveryCharges =
-      resolveDeliveryBadgeData[
-        checkoutAddressDataLocal.value.deliverySpeed
-      ].price;
-
-  return (
-    checkoutAddressDataLocal.value.orderAmount +
-    checkoutAddressDataLocal.value.deliveryCharges
-  );
-});
-
-const updateAddressData = () => {
-  emit("update:checkout-data", checkoutAddressDataLocal.value);
-};
-
-const nextStep = () => {
-  updateAddressData();
-  emit("update:currentStep", props.currentStep ? props.currentStep + 1 : 1);
-};
-
-watch(() => props.currentStep, updateAddressData);
 </script>
 
 <template>
@@ -80,8 +101,8 @@ watch(() => props.currentStep, updateAddressData);
 
       <!-- 👉 Address custom input -->
       <CustomRadios
-        v-model:selected-radio="checkoutAddressDataLocal.deliveryAddress"
-        :radio-content="checkoutAddressDataLocal.addresses"
+        v-model:selected-radio="checkoutData.deliveryAddress"
+        :radio-content="checkoutData.addresses"
         :grid-column="{ cols: '12', sm: '6' }"
       >
         <template #default="{ item }">
@@ -128,7 +149,7 @@ watch(() => props.currentStep, updateAddressData);
 
       <!-- 👉 Delivery options custom input -->
       <CustomRadiosWithIcon
-        v-model:selected-radio="checkoutAddressDataLocal.deliverySpeed"
+        v-model:selected-radio="checkoutData.deliverySpeed"
         :radio-content="deliveryOptions"
         :grid-column="{ cols: '12', sm: '4' }"
       >
@@ -165,22 +186,29 @@ watch(() => props.currentStep, updateAddressData);
       <VCard flat variant="outlined">
         <!-- 👉 Delivery estimate date -->
         <VCardText>
-          <h6 class="text-h6 mb-4">Estimated Delivery Date</h6>
+          <h6 class="text-h6 mb-4">Booking Item</h6>
 
           <VList class="card-list">
-            <VListItem
-              v-for="product in checkoutAddressDataLocal.cartItems"
-              :key="product.name"
-            >
+            <VListItem>
               <template #prepend>
-                <img height="70" width="60" :src="product.image" class="me-4" />
+                <img
+                  height="70"
+                  width="60"
+                  :src="
+                    getImageUrl(
+                      summary?.service_variant?.image?.breakpoints?.thumbnail
+                        ?.url,
+                    )
+                  "
+                  class="me-4"
+                />
               </template>
 
               <div class="text-body-1">
-                {{ product.name }}
+                {{ summary?.service_variant?.name }}
               </div>
               <h6 class="text-h6 text-medium-emphasis">
-                {{ product.estimatedDelivery }}
+                &#x20B9; {{ summary?.service_variant?.price }}
               </h6>
             </VListItem>
           </VList>
@@ -194,26 +222,24 @@ watch(() => props.currentStep, updateAddressData);
 
           <div class="d-flex align-center justify-space-between mb-2">
             <span class="text-high-emphasis">Order Total</span>
-            <span>${{ checkoutAddressDataLocal.orderAmount }}</span>
+            <span>&#x20B9;{{ summary?.grand_total }}</span>
           </div>
 
           <div class="d-flex align-center justify-space-between">
             <span class="text-high-emphasis">Delivery Charges</span>
             <div class="text-end">
               <div
-                v-if="checkoutAddressDataLocal.deliverySpeed === 'free'"
+                v-if="checkoutData.deliverySpeed === 'free'"
                 class="d-flex align-center"
               >
                 <div class="text-decoration-line-through text-disabled me-2">
-                  $5.00
+                  &#x20B9;5.00
                 </div>
                 <VChip size="small" color="success"> FREE </VChip>
               </div>
               <span v-else
-                >${{
-                  resolveDeliveryBadgeData[
-                    checkoutAddressDataLocal.deliverySpeed
-                  ].price
+                >&#x20B9;{{
+                  resolveDeliveryBadgeData[checkoutData.deliverySpeed].price
                 }}.00</span
               >
             </div>
@@ -227,12 +253,12 @@ watch(() => props.currentStep, updateAddressData);
         >
           <span class="text-base font-weight-medium">Total</span>
           <span class="text-base font-weight-medium">
-            ${{ totalPriceWithDeliveryCharges }}
+            &#x20B9;{{ summary?.grand_total }}
           </span>
         </VCardText>
       </VCard>
 
-      <VBtn block class="mt-4" @click="nextStep"> Place Order </VBtn>
+      <VBtn block class="mt-4" @click="step = step + 1"> Place Order </VBtn>
     </VCol>
   </VRow>
   <AddEditAddressDialog v-model:isDialogVisible="isEditAddressDialogVisible" />

@@ -47,8 +47,9 @@ export enum MediaTypes {
 export enum OrderStatus {
   PLACED = 'placed',
   CONFIRMED = 'confirmed',
-  CANCELED = 'canceled',
+  REJECTED = 'rejected',
   DELIVERED = 'delivered',
+  CANCELED = 'canceled',
 }
 
 export enum userTypes {

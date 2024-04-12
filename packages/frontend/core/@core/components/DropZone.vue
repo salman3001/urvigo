@@ -1,76 +1,79 @@
 <script setup lang="ts">
-import { useDropZone, useFileDialog, useObjectUrl } from '@vueuse/core'
+import { useDropZone, useFileDialog, useObjectUrl } from "@vueuse/core";
 
-const dropZoneRef = ref<HTMLDivElement>()
+const dropZoneRef = ref<HTMLDivElement>();
 interface FileData {
-  file: File
-  url: string
+  file: File;
+  url: string;
 }
 
-const fileData = ref<FileData[]>([])
-const { open, onChange } = useFileDialog({ accept: 'image/*' })
+const props = defineProps<{
+  max: number;
+}>();
+
+const emit = defineEmits<{
+  (e: "change", files: FileData[]): void;
+}>();
+
+const fileData = ref<FileData[]>([]);
+const { open, onChange } = useFileDialog({ accept: "image/*" });
 
 function onDrop(DroppedFiles: File[] | null) {
-  DroppedFiles?.forEach(file => {
-    if (file.type.slice(0, 6) !== 'image/') {
+  DroppedFiles?.forEach((file, i) => {
+    if (file.type.slice(0, 6) !== "image/") {
       // eslint-disable-next-line no-alert
-      alert('Only image files are allowed')
+      alert("Only image files are allowed");
 
-      return
+      return;
     }
 
-    fileData.value.push({
-      file,
-      url: useObjectUrl(file).value ?? '',
-    })
-  },
-  )
+    const filesCanBeUploaded = props.max - fileData.value.length;
+    if (filesCanBeUploaded > 0) {
+      fileData.value.push({
+        file,
+        url: useObjectUrl(file).value ?? "",
+      });
+    }
+  });
+
+  emit("change", fileData.value);
 }
 
-onChange((selectedFiles: any) => {
-  if (!selectedFiles)
-    return
+onChange((selectedFiles) => {
+  if (!selectedFiles) return;
 
-  for (const file of selectedFiles) {
-    fileData.value.push({
-      file,
-      url: useObjectUrl(file).value ?? '',
-    })
+  for (const [index, file] of Object.entries(selectedFiles)) {
+    const filesCanBeUploaded = props.max - fileData.value.length;
+
+    if (filesCanBeUploaded > 0) {
+      fileData.value.push({
+        file,
+        url: useObjectUrl(file).value ?? "",
+      });
+    }
   }
-})
 
-useDropZone(dropZoneRef, onDrop)
+  emit("change", fileData.value);
+});
+
+useDropZone(dropZoneRef, onDrop);
 </script>
 
 <template>
   <div class="flex">
     <div class="w-full h-auto relative">
-      <div
-        ref="dropZoneRef"
-        class="cursor-pointer"
-        @click="() => open()"
-      >
+      <div ref="dropZoneRef" class="cursor-pointer" @click="() => open()">
         <div
           v-if="fileData.length === 0"
           class="d-flex flex-column justify-center align-center gap-y-2 pa-12 drop-zone rounded"
         >
-          <IconBtn
-            variant="tonal"
-            class="rounded-sm"
-          >
+          <IconBtn variant="tonal" class="rounded-sm">
             <VIcon icon="tabler-upload" />
           </IconBtn>
-          <h4 class="text-h4">
-            Drag and drop your image here.
-          </h4>
+          <h4 class="text-h4">Drag and drop your image here.</h4>
           <span class="text-disabled">or</span>
 
-          <VBtn
-            variant="tonal"
-            size="small"
-          >
-            Browse Images
-          </VBtn>
+          <VBtn variant="tonal" size="small"> Browse Images </VBtn>
         </div>
 
         <div
@@ -78,22 +81,10 @@ useDropZone(dropZoneRef, onDrop)
           class="d-flex justify-center align-center gap-3 pa-8 drop-zone flex-wrap"
         >
           <VRow class="match-height w-100">
-            <template
-              v-for="(item, index) in fileData"
-              :key="index"
-            >
-              <VCol
-                cols="12"
-                sm="4"
-              >
-                <VCard
-                  :ripple="false"
-                  border
-                >
-                  <VCardText
-                    class="d-flex flex-column"
-                    @click.stop
-                  >
+            <template v-for="(item, index) in fileData" :key="index">
+              <VCol cols="12" sm="4">
+                <VCard :ripple="false" border>
+                  <VCardText class="d-flex flex-column" @click.stop>
                     <VImg
                       :src="item.url"
                       width="200px"
@@ -104,9 +95,7 @@ useDropZone(dropZoneRef, onDrop)
                       <span class="clamp-text text-wrap">
                         {{ item.file.name }}
                       </span>
-                      <span>
-                        {{ item.file.size / 1000 }} KB
-                      </span>
+                      <span> {{ item.file.size / 1000 }} KB </span>
                     </div>
                   </VCardText>
                   <VCardActions>

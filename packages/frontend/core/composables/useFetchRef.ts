@@ -39,7 +39,7 @@ export default function useFetchRef(opt?: {
     if (success == true) {
       opt?.onSuccess && opt?.onSuccess();
     } else if (success == false) {
-      errors.value = [
+      errors.value = ctx.response?._data?.errors || [
         {
           field: "",
           message: ctx.response?._data?.message || "Something went wrong",

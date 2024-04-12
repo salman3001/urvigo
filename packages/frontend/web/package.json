@@ -45,6 +45,7 @@
     "swiper": "11.0.7",
     "unplugin-vue-define-options": "1.4.2",
     "vue-chartjs": "5.3.0",
+    "vue-easy-lightbox": "^1.19.0",
     "vue-flatpickr-component": "11.0.3",
     "vue-i18n": "9.10.1",
     "vue-prism-component": "2.0.0",

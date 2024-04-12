@@ -2,6 +2,7 @@
 import BigNumber from "bignumber.js";
 
 const getImageUrl = useGetImageUrl();
+const route = useRoute();
 
 const props = defineProps<{
   variant: IServiceVariant;
@@ -81,7 +82,11 @@ const decrementQty = () => {
         </VCardText>
 
         <VCardActions class="justify-space-between">
-          <VBtn :to="routes.bookings.book_now(variant.id)">
+          <VBtn
+            :to="{
+              path: routes.bookings.book_now(variant.id),
+            }"
+          >
             <VIcon icon="tabler-shopping-cart-plus" />
             <span class="ms-2">Book Now</span>
           </VBtn>

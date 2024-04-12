@@ -1,29 +1,17 @@
 <script setup lang="ts">
-import emptyCartImg from "@images/pages/empty-cart.png";
 import BigNumber from "bignumber.js";
-
-interface Props {
-  variant: IServiceVariant;
-}
 
 const step = defineModel<number>("step", { required: true });
 const qty = defineModel<number>("qty", { required: true });
-const props = defineProps<Props>();
+defineEmits<{
+  (e: "apply-coupon"): void;
+}>();
+defineProps<{ summary?: IBookingSummary }>();
 const getImageUrl = useGetImageUrl();
 
 const nextStep = () => {
   step.value = step.value + 1;
 };
-
-let discount = new BigNumber(0);
-
-if (props.variant.discount_type === DiscountType.FLAT) {
-  discount = discount.plus(props.variant.discount_flat);
-} else if (props.variant.discount_type === DiscountType.PERCENATAGE) {
-  discount = new BigNumber(props.variant.discount_percentage)
-    .div(100)
-    .times(props.variant.price);
-}
 
 const incrementQty = () => {
   qty.value += 1;
@@ -61,107 +49,91 @@ const decrementQty = () => {
       <h5 class="text-h5 my-4">My Shopping Bag 1 Items</h5>
 
       <!-- 👉 Cart items -->
-      <div class="border rounded" v-if="variant">
-        <template>
-          <div
-            class="d-flex align-center gap-4 pa-6 position-relative flex-column flex-sm-row flex-grow-1"
-          >
-            <IconBtn class="checkout-item-remove-btn" @click="() => {}">
-              <VIcon size="18" icon="tabler-x" class="text-disabled" />
-            </IconBtn>
+      <div class="border rounded" v-if="summary">
+        <div
+          class="d-flex align-center gap-4 pa-6 position-relative flex-column flex-sm-row flex-grow-1"
+        >
+          <IconBtn class="checkout-item-remove-btn" @click="() => {}">
+            <VIcon size="18" icon="tabler-x" class="text-disabled" />
+          </IconBtn>
 
-            <div>
-              <VImg
-                width="140"
-                :src="getImageUrl(variant?.image?.breakpoints?.thumbnail?.url)"
+          <div>
+            <VImg
+              width="140"
+              :src="
+                getImageUrl(
+                  summary?.service_variant?.image?.breakpoints?.thumbnail?.url,
+                )
+              "
+            />
+          </div>
+
+          <div class="d-flex w-100 flex-column flex-md-row flex-grow-1">
+            <div class="d-flex flex-column gap-y-2">
+              <h6 class="text-h6">
+                {{ summary?.service_variant?.name }}
+              </h6>
+              <div class="d-flex align-center text-no-wrap gap-4 text-body-1">
+                <div class="text-disabled">
+                  Category
+                  <span class="d-inline-block text-primary">
+                    {{ summary?.service_variant?.service?.name }}</span
+                  >
+                </div>
+              </div>
+              <div>
+                <VChip :color="'success'" label size="small"> Avilable </VChip>
+              </div>
+
+              <VRating
+                density="compact"
+                :model-value="summary?.service_variant?.service?.avg_rating"
+                size="24"
+                readonly
               />
+              <div>
+                <IconBtn
+                  color="secondary"
+                  icon="tabler-minus"
+                  @click="decrementQty"
+                />
+                {{ qty }}
+                <IconBtn
+                  color="secondary"
+                  icon="tabler-plus"
+                  @click="incrementQty"
+                />
+              </div>
             </div>
 
-            <div class="d-flex w-100 flex-column flex-md-row flex-grow-1">
-              <div class="d-flex flex-column gap-y-2">
-                <h6 class="text-h6">
-                  {{ variant.name }}
-                </h6>
-                <div class="d-flex align-center text-no-wrap gap-4 text-body-1">
-                  <div class="text-disabled">
-                    Sold by:
-                    <span class="d-inline-block text-primary">
-                      {{ variant?.service?.name }}</span
-                    >
-                  </div>
-                  <VChip :color="'success'" label size="small">
-                    Avilable
-                  </VChip>
-                </div>
+            <VSpacer />
 
-                <VRating
-                  density="compact"
-                  :model-value="variant.service.avg_rating"
-                  size="24"
-                  readonly
-                />
-                <div>
-                  <IconBtn
-                    color="secondary"
-                    icon="tabler-minus"
-                    @click="decrementQty"
-                  />
-                  {{ qty }}
-                  <IconBtn
-                    color="secondary"
-                    icon="tabler-plus"
-                    @click="incrementQty"
-                  />
+            <div
+              class="d-flex flex-column mt-5 text-start text-md-end"
+              :class="$vuetify.display.mdAndDown ? 'gap-2' : 'gap-4'"
+            >
+              <div class="d-flex text-base align-self-md-end">
+                <div class="text-primary">
+                  &#x20B9;{{ summary?.total_after_discount }}
+                </div>
+                <div
+                  v-if="new BigNumber(summary?.vendor_discount).gt(0)"
+                  class="text-decoration-line-through"
+                >
+                  &#x20B9;{{ summary?.total_without_discount }}
                 </div>
               </div>
 
-              <VSpacer />
-
-              <div
-                class="d-flex flex-column mt-5 text-start text-md-end"
-                :class="$vuetify.display.mdAndDown ? 'gap-2' : 'gap-4'"
-              >
-                <div class="d-flex text-base align-self-md-end">
-                  <div class="text-primary">&#x20B9;{{ variant.price }}</div>
-                  <div v-if="discount.gt(0)">/</div>
-                  <div
-                    v-if="discount.gt(0)"
-                    class="text-decoration-line-through"
-                  >
-                    &#x20B9;{{
-                      new BigNumber(variant.price).minus(discount).toFixed(2)
-                    }}
-                  </div>
-                </div>
-
-                <div>
-                  <VBtn variant="tonal" size="small"> add to wishlist </VBtn>
-                </div>
+              <div>
+                <VBtn variant="tonal" size="small"> add to wishlist </VBtn>
               </div>
             </div>
           </div>
-        </template>
+        </div>
       </div>
 
       <!-- 👉 Empty Cart -->
-      <div v-else>
-        <VImg :src="emptyCartImg" />
-      </div>
-
-      <!-- 👉 Add more from wishlist -->
-      <div
-        class="d-flex align-center justify-space-between rounded py-2 px-5 text-base mt-4"
-        style="border: 1px solid rgb(var(--v-theme-primary))"
-      >
-        <a href="#" class="font-weight-medium"
-          >Add more products from wishlist</a
-        >
-        <VIcon
-          icon="tabler-arrow-right"
-          size="16"
-          class="flip-in-rtl text-primary"
-        />
-      </div>
+      <VSkeletonLoader v-else type="list" />
     </VCol>
 
     <VCol cols="12" lg="4">
@@ -170,30 +142,33 @@ const decrementQty = () => {
         <VCardText>
           <h6 class="text-h6 mb-4">Price Details</h6>
 
-          <div class="text-high-emphasis">
+          <div class="text-high-emphasis" v-if="summary">
             <div class="d-flex justify-space-between mb-2">
               <span>Bag Total</span>
               <span class="text-medium-emphasis"
-                >&#x20B9;{{ new BigNumber(variant.price).times(qty) }}</span
+                >&#x20B9;{{ summary?.total_without_discount }}</span
               >
             </div>
 
             <div class="d-flex justify-space-between mb-2">
               <span>Discount</span>
-              &#x20B9;{{ discount.toFixed(2) }}
+              &#x20B9;{{ summary?.vendor_discount }}
             </div>
 
             <div class="d-flex justify-space-between mb-2">
               <span>Coupon Discount</span>
-              <a href="#">Apply Coupon</a>
+              <span v-if="new BigNumber(summary?.coupon_discount).gt(0)">{{
+                summary?.coupon_discount
+              }}</span>
+              <a href="#" v-else @click.prevent="$emit('apply-coupon')"
+                >Apply Coupon</a
+              >
             </div>
 
             <div class="d-flex justify-space-between mb-2">
               <span>Order Total</span>
               <span class="text-medium-emphasis"
-                >&#x20B9;{{
-                  new BigNumber(variant.price).times(qty).minus(discount)
-                }}</span
+                >&#x20B9;{{ summary?.grand_total }}</span
               >
             </div>
 
@@ -208,6 +183,7 @@ const decrementQty = () => {
               </div>
             </div>
           </div>
+          <VSkeletonLoader v-else type="list" />
         </VCardText>
 
         <VDivider />

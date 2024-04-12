@@ -7,13 +7,27 @@ interface InitialQuery {
   perPage?: number | null;
 }
 
-const createForm = {};
+const createForm = {
+  serviceVariantId: "",
+  qty: "",
+  couponId: "",
+  paymentdetail: {
+    paymentMode: "",
+    paymentStatus: "",
+  },
+};
 
 const updateForm = {};
 
 const updateStatusForm = {
   status: OrderStatus,
   remarks: "",
+};
+
+const summaryForm = {
+  serviceVariantId: "",
+  qty: 1,
+  couponId: "",
 };
 
 class UseBookingApi extends useBaseApi<
@@ -61,17 +75,24 @@ class UseBookingApi extends useBaseApi<
 
   bookingSummary() {
     const { fetcher } = useFetchRef();
-    const bookingSummary = async (): Promise<IResType<any>> =>
-      fetcher(this.baseUrl + "/summary");
+    const form = reactive(summaryForm);
+    const bookingSummary = async (): Promise<IResType<IBookingSummary>> =>
+      fetcher(this.baseUrl + "/summary", {
+        method: "post",
+        body: form,
+      });
 
     return {
       bookingSummary,
+      form,
     };
   }
 
   couponList() {
     const { fetcher, loading } = useFetchRef();
-    const couponList = async (variantId: number): Promise<IResType<any>> =>
+    const couponList = async (
+      variantId: number,
+    ): Promise<IResType<ICoupon[]>> =>
       fetcher(this.baseUrl + `/get-coupons?serviceVariantId=${variantId}`);
 
     return {

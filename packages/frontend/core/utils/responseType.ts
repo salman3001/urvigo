@@ -127,7 +127,7 @@ interface IServiceVariant {
   desc: string;
   order: number;
   image: ImageType | null;
-  serviceId: number;
+  service_id: number;
   service: IService;
   meta: any;
 }
