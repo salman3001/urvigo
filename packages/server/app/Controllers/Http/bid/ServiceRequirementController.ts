@@ -295,6 +295,17 @@ export default class ServiceRequirementController extends BaseApiController {
 
     await bouncer.with('ServiceRequirementPolicy').authorize('update', serviceRequirement)
 
+    const lastNegotiiate = bid.negotiateHistory[bid.negotiateHistory.length - 1]
+
+    if (lastNegotiiate.accepted === false) {
+      return response.custom({
+        code: 400,
+        data: null,
+        message: 'Previous negotiate is still pending',
+        success: false,
+      })
+    }
+
     bid.negotiateHistory.push({
       asked_price: new BigNumber(payload.price).toFixed(2),
       date_time: DateTime.now(),

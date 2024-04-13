@@ -10,7 +10,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "createChat"): void;
-  (e: "refreshBids"): void;
+  (e: "negotiated"): void;
 }>();
 
 const model = defineModel<boolean>({ required: true });
@@ -158,32 +158,32 @@ const {
         </TimeLine> -->
       </div>
     </VCardItem>
-    <VCardItem
-      class="row q-gutter-sm justify-end q-pa-lg"
-      v-if="selectedBid && !acceptedBid"
-    >
-      <VBtn
-        color="primary"
-        @click.prevent="negotiateModal = true"
-        v-if="
-          !selectedBid?.negotiate_history?.length ||
-          selectedBid?.negotiate_history[
-            selectedBid?.negotiate_history?.length - 1
-          ]?.accepted
-        "
-        >Negotiate</VBtn
-      >
-      <NuxtLink
-        :to="{
-          path: routes.custom_bookings.book_now(serviceRequirement.id),
-          query: {
-            acceptedBidId: selectedBid.id,
-          },
-        }"
-        v-if="serviceRequirement.accepted_bid_id"
-      >
-        <q-btn color="primary" type="submit">Accept and Book</q-btn>
-      </NuxtLink>
+    <VCardItem v-if="selectedBid && !acceptedBid">
+      <div class="d-flex justify-end gap-2">
+        <VBtn
+          variant="tonal"
+          color="primary"
+          @click.prevent="negotiateModal = true"
+          v-if="
+            !selectedBid?.negotiate_history?.length ||
+            selectedBid?.negotiate_history[
+              selectedBid?.negotiate_history?.length - 1
+            ]?.accepted
+          "
+          >Negotiate</VBtn
+        >
+        <VBtn
+          v-if="!serviceRequirement.accepted_bid_id"
+          color="primary"
+          :to="{
+            path: routes.custom_bookings.book_now(serviceRequirement.id),
+            query: {
+              acceptedBidId: selectedBid.id,
+            },
+          }"
+          >Accept and Book</VBtn
+        >
+      </div>
     </VCardItem>
     <ModalBidNegotiate
       v-model="negotiateModal"
@@ -192,7 +192,7 @@ const {
       @negotiated="
         () => {
           negotiateModal = false;
-          model = false;
+          emit('negotiated');
         }
       "
     />

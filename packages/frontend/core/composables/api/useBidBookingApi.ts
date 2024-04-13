@@ -7,7 +7,15 @@ interface InitialQuery {
   perPage?: number | null;
 }
 
-const createForm = {};
+const createForm = {
+  serviceRequirementId: "",
+  acceptedBidId: "",
+  qty: 1,
+  paymentdetail: {
+    paymentMode: "",
+    paymentStatus: "",
+  },
+};
 
 const updateForm = {};
 

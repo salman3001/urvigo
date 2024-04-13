@@ -155,7 +155,11 @@ const createChat = async () => {
 
           <div>
             <div v-if="pending">
-              <VSkeletonLoader type="list" v-for="i in 3" :key="i" />
+              <VSkeletonLoader
+                type="list-item-avatar-three-line"
+                v-for="i in 3"
+                :key="i"
+              />
             </div>
             <div v-else-if="recivedBids?.data?.length < 1">
               No Bids Recieved..
@@ -203,8 +207,9 @@ const createChat = async () => {
       :accepted-bid="data?.acceptedBid!"
       :service-requirement="data?.serviceRequirement!"
       @create-chat="createChat"
-      @refresh-bids="
+      @negotiated="
         () => {
+          bidDetailModal = false;
           refreshBids();
         }
       "

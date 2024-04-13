@@ -85,7 +85,7 @@ const {
         <div style="max-width: 95vw">
           <div class="q-gutter-y-md">
             <div v-if="pending" v-for="n in 5">
-              <VSkeletonLoader type="list" />
+              <VSkeletonLoader type="list-item-three-line" />
             </div>
             <VRow v-else>
               <VCol
@@ -111,14 +111,14 @@ const {
         </div>
       </div>
     </div>
+    <ModalPostRequirement
+      v-model:is-visible="postModal"
+      @submit="
+        async () => {
+          postModal = false;
+          await refresh();
+        }
+      "
+    />
   </VContainer>
-  <ModalPostRequirement
-    v-model:is-visible="postModal"
-    @submit="
-      () => {
-        refresh();
-        postModal = false;
-      }
-    "
-  />
 </template>

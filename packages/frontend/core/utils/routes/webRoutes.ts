@@ -22,7 +22,7 @@ export default {
   },
   custom_bookings: {
     list: "/custom-bookings",
-    view: (id: number) => `/custom-booking/custom-booking-${id}`,
+    view: (id: number) => `/custom-bookings/custom-booking-${id}`,
     book_now: (requirementId: number) =>
       `/custom-bookings/book-now-${requirementId}`,
   },
