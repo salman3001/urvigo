@@ -1,6 +1,7 @@
 <script setup lang="ts">
 definePageMeta({
   middleware: "is-logged-in",
+  layoutWrapperClasses: "layout-content-height-fixed",
 });
 </script>
 
@@ -9,5 +10,8 @@ definePageMeta({
   <br />
   <br />
   <br />
-  <VContainer id="team"> chats </VContainer>
+  <br />
+  <VContainer fluid>
+    <ViewsChat />
+  </VContainer>
 </template>
