@@ -8,11 +8,18 @@ interface InitialQuery {
   perPage: number | null;
 }
 const createForm = {};
-const updateForm = {};
-const updateProfileForm = {
+const updateForm = {
   avatar: null,
   logo: null,
-  images: {
+  images: [],
+  firstName: "",
+  lastName: "",
+  businessName: "",
+  email: "",
+  password: "",
+  phone: "",
+  isActive: "",
+  profile: {
     shortDesc: "",
     longDesc: "",
     isActive: "",
@@ -25,7 +32,6 @@ const updateProfileForm = {
   social: {
     website: "",
     facebook: "",
-    twitter: "",
     instagram: "",
     pintrest: "",
     linkedin: "",
@@ -34,19 +40,12 @@ const updateProfileForm = {
     telegram: "",
   },
 
-  faq: [
-    {
-      quest: "",
-      ans: "",
-    },
-  ],
-  address: [
-    {
-      address: "",
-      geoLocation: "",
-    },
-  ],
+  faq: [],
+  address: [],
 };
+
+const updateProfileForm = updateForm;
+
 const createReviewForm = {
   rating: "",
   message: "",
@@ -57,15 +56,15 @@ class UseVendorApi extends useBaseApi<
   IPageRes<IVendorUser[]>,
   InitialQuery,
   typeof createForm,
-  typeof updateForm
+  DeepPartial<typeof updateForm>
 > {
   constructor() {
-    super("/api/vendor-users", createForm, updateForm);
+    super("/api/vendor-users", createForm);
   }
 
   updateProfile() {
     const { fetcher, loading, errors } = useFetchRef();
-    const form = reactive(updateProfileForm);
+    const form = reactive<DeepPartial<typeof updateForm>>(updateProfileForm);
 
     const update = async (
       id: number,
@@ -103,18 +102,21 @@ class UseVendorApi extends useBaseApi<
     };
   }
 
-  reviews(vendorId: number) {
+  reviews(query: Partial<InitialQuery>) {
     const { fetcher } = useFetchRef();
-    const reviews = async (): Promise<IPageRes<IReview[]>> =>
-      fetcher(this.baseUrl + `/${vendorId}/reviews`);
+    const reviews = async (vendorId: number): Promise<IPageRes<IReview[]>> =>
+      fetcher(this.baseUrl + `/${vendorId}/reviews`, {
+        query: query,
+      });
 
     return {
       reviews,
+      query,
     };
   }
 
   cretaeReview() {
-    const { fetch, loading, error } = usePostFetch();
+    const { fetcher, loading, errors } = useFetchRef();
     const form = reactive(createReviewForm);
 
     const cretaeReview = async (
@@ -126,7 +128,7 @@ class UseVendorApi extends useBaseApi<
     ) => {
       loading.value = true;
       try {
-        const res = await fetch<IResType<IReview>>(
+        const res = await fetcher<IResType<IReview>>(
           this.baseUrl + `/${vendorId}/reviews`,
           {
             method: "post",
@@ -149,7 +151,7 @@ class UseVendorApi extends useBaseApi<
       cretaeReview,
       form,
       loading,
-      error,
+      errors,
     };
   }
 }

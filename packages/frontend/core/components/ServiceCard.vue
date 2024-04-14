@@ -7,6 +7,8 @@ const props = defineProps<{
 }>();
 
 const getImageUrl = useGetImageUrl();
+const wishlist = wishlistStore();
+const color = ref("secondary");
 
 const minPriceVariant = props.service.variants.reduce((prev, current) =>
   prev.price < current.price ? prev : current,
@@ -21,6 +23,17 @@ if (minPriceVariant.discount_type === DiscountType.FLAT) {
     .div(100)
     .times(minPriceVariant.price);
 }
+
+const isWishlisted = computed(() => {
+  const matchedItem = wishlist.wishlistItems.filter(
+    (i) => i.id == props.service.id,
+  );
+  if (matchedItem.length > 0) {
+    return true;
+  } else {
+    false;
+  }
+});
 </script>
 
 <template>
@@ -89,11 +102,60 @@ if (minPriceVariant.discount_type === DiscountType.FLAT) {
 
       <IconBtn color="secondary" icon="tabler-share" />
     </VCardActions>
+    <div class="fav-icon">
+      <VTooltip text="Remove FromWishlist" v-if="isWishlisted">
+        <template v-slot:activator="{ props }">
+          <VBtn
+            icon
+            color="pink"
+            v-bind="props"
+            class="cursor-pointer"
+            size="large"
+            @click="
+              (e: Event) => {
+                e.preventDefault();
+                wishlist.removeWishlistItem(service.id);
+              }
+            "
+          >
+            <VIcon icon="tabler-heart-filled" />
+          </VBtn>
+        </template>
+      </VTooltip>
+      <VTooltip v-else text="Add to Wishlist">
+        <template v-slot:activator="{ props }">
+          <VBtn
+            icon
+            :color="color"
+            v-bind="props"
+            @mouseenter="color = 'pink'"
+            @mouseleave="color = 'secondary'"
+            class="cursor-pointer"
+            size="large"
+            @click="
+              (e: Event) => {
+                e.preventDefault();
+                wishlist.addWishlistItem(service.id);
+              }
+            "
+          >
+            <VIcon icon="tabler-heart-filled" />
+          </VBtn>
+        </template>
+      </VTooltip>
+    </div>
   </VCard>
 </template>
 
 <style lang="scss" scoped>
 .v-btn {
   transform: none;
+}
+
+.fav-icon {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  opacity: 0.8;
 }
 </style>

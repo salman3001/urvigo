@@ -133,7 +133,7 @@ const decrementQty = () => {
       </div>
 
       <!-- 👉 Empty Cart -->
-      <VSkeletonLoader v-else type="list" />
+      <VSkeletonLoader v-else type="list-item" />
     </VCol>
 
     <VCol cols="12" lg="4">
@@ -183,7 +183,7 @@ const decrementQty = () => {
               </div>
             </div>
           </div>
-          <VSkeletonLoader v-else type="list" />
+          <VSkeletonLoader v-else type="list-item" />
         </VCardText>
 
         <VDivider />

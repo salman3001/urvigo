@@ -131,11 +131,13 @@ export default class VendorUsersController extends BaseApiController {
   public async updateProfile({ request, response, params, bouncer }: HttpContextContract) {
     const user = await VendorUser.findOrFail(+params.id)
 
-    const payload = await request.validate(VendorProfileUpdateValidator)
+    const { address, avatar, images, logo, seo, profile, ...payload } = await request.validate(
+      VendorProfileUpdateValidator
+    )
 
-    const profile = await VendorProfile.findByOrFail('vendor_user_id', user.id)
+    const vendorProfile = await VendorProfile.findByOrFail('vendor_user_id', user.id)
 
-    if (!profile) {
+    if (!vendorProfile) {
       return response.custom({
         code: 404,
         message: 'User profile not found',
@@ -143,79 +145,87 @@ export default class VendorUsersController extends BaseApiController {
         success: false,
       })
     }
-    await bouncer.with('BussinessPolicy').authorize('update', profile)
 
-    if (payload.profile) {
-      profile.merge(payload.profile)
-      await profile.save()
-    }
+    await bouncer.with('BussinessPolicy').authorize('update', vendorProfile)
 
-    if (payload.address) {
-      await profile.load('addresses')
+    await Database.transaction(async (trx) => {
+      vendorProfile.useTransaction(trx)
+      user.useTransaction(trx)
+      user.merge(payload)
+      await user.save()
 
-      if (profile.addresses) {
-        for (const address of profile.addresses) {
-          await address.delete()
-        }
-        await profile.related('addresses').createMany(payload.address)
-      } else {
-        await profile.related('addresses').createMany(payload.address)
+      if (profile) {
+        vendorProfile.merge(profile)
+        await vendorProfile.save()
       }
-    }
 
-    if (payload.social) {
-      await profile?.load('social')
-      if (profile?.social) {
-        await profile.social.delete()
-        await profile.related('social').create(payload.social)
-      } else {
-        await profile.related('social').create(payload.social)
-      }
-    }
+      if (address) {
+        await vendorProfile.load('addresses')
 
-    if (payload.avatar) {
-      profile.avatar = await ResponsiveAttachment.fromFile(payload.avatar)
-    }
-
-    if (payload.logo) {
-      profile.logo = await ResponsiveAttachment.fromFile(payload.logo)
-    }
-
-    if (payload.images) {
-      await profile.load('images')
-
-      await Promise.all(
-        profile.images.map(async (s) => {
-          await s.delete()
-        })
-      )
-
-      const images = await Promise.all(
-        payload.images.map(async (img) => {
-          try {
-            const storeImg = await Image.create({
-              file: await ResponsiveAttachment.fromFile(img),
-            })
-            return storeImg
-          } catch (error) {
-            console.error('Error storing image:', error)
-            // Handle the error or decide whether to skip this image
-            return null
+        if (vendorProfile.addresses) {
+          for (const address of vendorProfile.addresses) {
+            await address.delete()
           }
-        })
-      )
+          await vendorProfile.related('addresses').createMany(address)
+        } else {
+          await vendorProfile.related('addresses').createMany(address)
+        }
+      }
 
-      // Filter out any null values (images that failed to store)
-      const validImages = images.filter((img) => img !== null)
-      await profile.related('images').saveMany(validImages as Image[])
-    }
+      if (payload.social) {
+        await vendorProfile?.load('social')
+        if (vendorProfile?.social) {
+          await vendorProfile.social.delete()
+          await vendorProfile.related('social').create(payload.social)
+        } else {
+          await vendorProfile.related('social').create(payload.social)
+        }
+      }
 
-    await profile.save()
+      if (avatar) {
+        vendorProfile.avatar = await ResponsiveAttachment.fromFile(avatar)
+      }
+
+      if (logo) {
+        vendorProfile.logo = await ResponsiveAttachment.fromFile(logo)
+      }
+
+      if (images) {
+        await vendorProfile.load('images')
+
+        await Promise.all(
+          vendorProfile.images.map(async (s) => {
+            await s.delete()
+          })
+        )
+
+        const createdImages = await Promise.all(
+          images.map(async (img) => {
+            try {
+              const storeImg = await Image.create({
+                file: await ResponsiveAttachment.fromFile(img),
+              })
+              return storeImg
+            } catch (error) {
+              console.error('Error storing image:', error)
+              // Handle the error or decide whether to skip this image
+              return null
+            }
+          })
+        )
+
+        // Filter out any null values (images that failed to store)
+        const validImages = createdImages.filter((img) => img !== null)
+        await vendorProfile.related('images').saveMany(validImages as Image[])
+      }
+
+      await vendorProfile.save()
+    })
 
     return response.custom({
       message: 'Business profile Updated!',
       code: 201,
-      data: profile,
+      data: vendorProfile,
       success: true,
     })
   }

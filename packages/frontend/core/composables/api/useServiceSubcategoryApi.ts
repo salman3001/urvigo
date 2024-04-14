@@ -19,7 +19,7 @@ class UseServiceSubcategoryApi extends useBaseApi<
   typeof updateForm
 > {
   constructor() {
-    super("/api/service-subcategory", createForm, updateForm);
+    super("/api/service-subcategory", createForm);
   }
 }
 

@@ -17,8 +17,11 @@ export default class ConversationsController extends BaseApiController {
   public async index({ request, response, bouncer, auth }: HttpContextContract) {
     await bouncer.with('ServicePolicy').authorize('viewList')
     const conversationQuery = Conversation.query()
-      .where('participant_one_identifier', `${auth.user?.userType}-${auth.user?.id}`)
-      .orWhere('participant_two_identifier', `${auth.user?.userType}-${auth.user?.id}`)
+      .where((builder) => {
+        builder
+          .where('participant_one_identifier', `${auth.user?.userType}-${auth.user?.id}`)
+          .orWhere('participant_two_identifier', `${auth.user?.userType}-${auth.user?.id}`)
+      })
       .preload('participantOne', (s) => {
         s.preload('user', (u) => {
           u.preload('profile', (p) => {
@@ -54,7 +57,7 @@ export default class ConversationsController extends BaseApiController {
           })
       })
       .preload('messages', (m) => {
-        m.orderBy('created_at', 'desc').limit(1)
+        m.orderBy('created_at', 'desc').groupLimit(1)
       })
       .withCount('messages', (m) => {
         m.where('read', 0)
@@ -150,7 +153,8 @@ export default class ConversationsController extends BaseApiController {
         conversation = await Conversation.create({ name: payload.name }, { client: trx })
 
         if (auth.user?.userType === userTypes.USER) {
-          const participantOne = await ConversationParticipant.create(
+          const participantOne = await ConversationParticipant.firstOrCreate(
+            { userIdentifier: identifierOne },
             {
               userId: auth.user.id,
               userIdentifier: identifierOne,
@@ -164,7 +168,8 @@ export default class ConversationsController extends BaseApiController {
         }
 
         if (auth.user?.userType === userTypes.VENDER) {
-          const participantOne = await ConversationParticipant.create(
+          const participantOne = await ConversationParticipant.firstOrCreate(
+            { userIdentifier: identifierOne },
             {
               vendorUserId: auth.user.id,
               userIdentifier: identifierOne,
@@ -178,7 +183,8 @@ export default class ConversationsController extends BaseApiController {
         }
 
         if (auth.user?.userType === userTypes.ADMIN) {
-          const participantOne = await ConversationParticipant.create(
+          const participantOne = await ConversationParticipant.firstOrCreate(
+            { userIdentifier: identifierOne },
             {
               adminUserId: auth.user.id,
               userIdentifier: identifierOne,
@@ -192,7 +198,8 @@ export default class ConversationsController extends BaseApiController {
         }
 
         if (payload.participant.userType == userTypes.USER) {
-          const participantTwo = await ConversationParticipant.create(
+          const participantTwo = await ConversationParticipant.firstOrCreate(
+            { userIdentifier: identifierTwo },
             {
               userId: payload.participant.userId,
               userIdentifier: identifierTwo,
@@ -206,7 +213,8 @@ export default class ConversationsController extends BaseApiController {
         }
 
         if (payload.participant.userType == userTypes.VENDER) {
-          const participantTwo = await ConversationParticipant.create(
+          const participantTwo = await ConversationParticipant.firstOrCreate(
+            { userIdentifier: identifierTwo },
             {
               vendorUserId: payload.participant.userId,
               userIdentifier: identifierTwo,
@@ -220,7 +228,8 @@ export default class ConversationsController extends BaseApiController {
         }
 
         if (payload.participant.userType == userTypes.ADMIN) {
-          const participantTwo = await ConversationParticipant.create(
+          const participantTwo = await ConversationParticipant.firstOrCreate(
+            { userIdentifier: identifierTwo },
             {
               adminUserId: payload.participant.userId,
               userIdentifier: identifierTwo,

@@ -15,7 +15,6 @@ export class useBaseApi<
   constructor(
     public baseUrl: string,
     public creatForm: createForm,
-    public updateForm: updateform,
   ) {}
 
   list(initialQuery: initialQuery) {

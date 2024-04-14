@@ -1,150 +1,229 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { VNodeRenderer } from "@layouts/components/VNodeRenderer";
+import { themeConfig } from "@themeConfig";
+
+import authV2RegisterIllustrationBorderedDark from "@images/pages/auth-v2-register-illustration-bordered-dark.png";
+import authV2RegisterIllustrationBorderedLight from "@images/pages/auth-v2-register-illustration-bordered-light.png";
+import authV2RegisterIllustrationDark from "@images/pages/auth-v2-register-illustration-dark.png";
+import authV2RegisterIllustrationLight from "@images/pages/auth-v2-register-illustration-light.png";
+import authV2MaskDark from "@images/pages/misc-mask-dark.png";
+import authV2MaskLight from "@images/pages/misc-mask-light.png";
+
+const imageVariant = useGenerateImageVariant(
+  authV2RegisterIllustrationLight,
+  authV2RegisterIllustrationDark,
+  authV2RegisterIllustrationBorderedLight,
+  authV2RegisterIllustrationBorderedDark,
+  true,
+);
+
+const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark);
+
+definePageMeta({
+  layout: "blank",
+});
 
 const auth = authStore();
-const isPwd = ref(true);
-const loading = ref(false)
-const config = useRuntimeConfig()
-const $q = useQuasar()
+const loading = ref(false);
+const isPasswordVisible = ref(false);
+const { fetchRef } = useFetchRef();
+const formRef = ref<null | HTMLFormElement>(null);
 
 const form = ref({
-  firstName: '',
-  lastName: '',
-  businessName: '',
-  email: '',
-  phone: '',
-  password: '',
-  passwordConfirmation: '',
-  userType: userTypes.USER
+  firstName: "",
+  lastName: "",
+  businessName: "",
+  email: "",
+  phone: "",
+  password: "",
+  passwordConfirmation: "",
+  userType: userTypes.USER,
+  temp: false,
 });
 
 const signup = async () => {
-  loading.value = true
-  const res = await auth.signup(
-    form.value
-  );
+  loading.value = true;
+  const { valid } = await formRef.value?.validate();
+  if (valid) {
+    const res = await auth.signup(form.value);
 
-  if (res) {
-    const user = useCookie('user', {
-      maxAge: 60 * 60 * 24
-    })
+    if (res?.success == true) {
+      const user = useCookie("user", {
+        maxAge: 60 * 60 * 24,
+      });
 
-    const token = useCookie('token', {
-      maxAge: 60 * 60 * 24
-    })
+      const token = useCookie("token", {
+        maxAge: 60 * 60 * 24,
+      });
 
-    const socketToken = useCookie('socketToken', {
-      maxAge: 60 * 60 * 24
-    })
+      const socketToken = useCookie("socketToken", {
+        maxAge: 60 * 60 * 24,
+      });
 
+      user.value = res?.data.user;
+      token.value = res?.data.token.token;
+      socketToken.value = res?.data?.socketToken;
+      fetchRef.value = null;
 
-    user.value = res?.data.user
-    token.value = res?.data.token.token
-    socketToken.value = res?.data?.socketToken
-    const authorization = `Bearer ${toRaw(token.value)}`
-    createFetch({
-      baseURL: config.public.baseApi,
-      headers: {
-        authorization,
-      },
-    })
-
-
-    navigateTo(routes.home)
+      navigateTo(routes.home);
+    }
   }
 
-
-  loading.value = false
-}
-
-
+  loading.value = false;
+};
 </script>
 
 <template>
-  <div class="row q--col-gutter-md q-pa-md q-pa-md-lg q-pa-md q-pa-lg-lg window-height" style="min-height: 100vh;">
-    <div class="col-12 col-md-7 column full-height">
-      <div class="col-1 ">
-        <BrandLogo size="200px" :to="routes.home" />
-      </div>
-
-      <div class="col-11 row justify-center items-center q-pt-md">
-        <q-card class="my-card q-pa-0 no-shadow" :class="$q.screen.lt.sm ? 'full-width' : ''"
-          :style="{ translate: $q.screen.gt.md ? '0px -50px' : 'none', width: $q.screen.gt.xs ? '500px' : 'auto' }">
-          <q-card-section :class="$q.screen.lt.sm ? 'q-pa-none' : ''">
-
-            <div class="text-h4 text-weight-bold">
-              Sign up
-            </div>
-            <p class="text-grey-8">Please enter your detail to signup</p>
-          </q-card-section>
-
-          <q-card-section class="q-pt-none q-pt-md" :class="$q.screen.lt.sm ? 'q-pa-none' : ''">
-            <q-form class="q-gutter-y-sm" @submit.prevent="signup">
-              <div class="row q-col-gutter-md">
-                <div class="col-12 col-sm-6">
-                  <label>First Name</label>
-                  <q-input outlined v-model="form.firstName" dense placeholder="John"
-                    :rules="[rules.required('Required')]" />
-                </div>
-                <div class="col-12 col-sm-6">
-                  <label>Last Name</label>
-                  <q-input outlined v-model="form.lastName" dense placeholder="Doe"
-                    :rules="[rules.required('Required')]" />
-                </div>
-              </div>
-              <div class="row q-col-gutter-md">
-                <div class="col-12 col-sm-6">
-                  <label>Email adress</label>
-                  <q-input outlined v-model="form.email" dense placeholder="name@example.com"
-                    :rules="[rules.required('Required'), rules.email('Not A valid email')]" />
-                </div>
-                <div class="col-12 col-sm-6">
-                  <label>Phone number</label>
-                  <q-input type="number" outlined v-model="form.phone" dense placeholder="9188037****"
-                    :rules="[rules.required('Required'), rules.minLength(9, 'Not a valid number')]" />
-                </div>
-              </div>
-              <div class="row q-col-gutter-md">
-                <div class="col-12 col-sm-6">
-                  <label>Password</label>
-                  <q-input dense v-model="form.password" outlined type="password" placeholder="*********"
-                    :rules="[rules.required('Required'), rules.minLength(8, 'Password Must contain * charectors')]">
-                  </q-input>
-                </div>
-                <div class="col-12 col-sm-6">
-                  <label>Confirm Password</label>
-                  <q-input dense v-model="form.passwordConfirmation" outlined :type="isPwd ? 'password' : 'text'"
-                    placeholder="*********"
-                    :rules="[rules.required('Required'), rules.sameAs(form.password, 'Password dont match')]">
-
-                    <template v-slot:append>
-                      <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer"
-                        @click="isPwd = !isPwd" />
-                    </template>
-                  </q-input>
-                </div>
-              </div>
-              <q-btn color="primary" v-if="loading" :disable="true" style="width: 100%">
-                <q-circular-progress indeterminate size="20px" class="q-px-10" :thickness="1" color="primary"
-                  track-color="black" style="min-width: 8rem" />
-              </q-btn>
-              <q-btn v-else type="submit" color="primary" style="width: 100%">Sign up</q-btn>
-            </q-form>
-          </q-card-section>
-          <q-card-section>
-            <q-separator />
-          </q-card-section>
-
-          <q-card-section class="row justify-center " :class="$q.screen.lt.sm ? 'q-pa-none' : ''">
-          </q-card-section>
-          <p class="q--sm text-center">Already have an account? <NuxtLink :to="routes.auth.login">Sign in</NuxtLink>
-          </p>
-
-        </q-card>
-      </div>
+  <NuxtLink to="/">
+    <div class="auth-logo d-flex align-center gap-x-3">
+      <VNodeRenderer :nodes="themeConfig.app.logo" />
+      <h1 class="auth-title">
+        {{ themeConfig.app.title }}
+      </h1>
     </div>
-    <div class="col-12 col-md-5 gt-sm full-height">
-      <div class="fit rounded-borders" :style="{ backgroundImage: 'url(/images/login-art.jpg)' }"></div>
-    </div>
-  </div>
+  </NuxtLink>
+
+  <VRow no-gutters class="auth-wrapper bg-surface">
+    <VCol md="8" class="d-none d-md-flex">
+      <div class="position-relative bg-background w-100 me-0">
+        <div
+          class="d-flex align-center justify-center w-100 h-100"
+          style="padding-inline: 100px"
+        >
+          <VImg
+            max-width="500"
+            :src="imageVariant"
+            class="auth-illustration mt-16 mb-2"
+          />
+        </div>
+
+        <img
+          class="auth-footer-mask"
+          :src="authThemeMask"
+          alt="auth-footer-mask"
+          height="280"
+          width="100"
+        />
+      </div>
+    </VCol>
+
+    <VCol
+      cols="12"
+      md="4"
+      class="auth-card-v2 d-flex align-center justify-center"
+      style="background-color: rgb(var(--v-theme-surface))"
+    >
+      <VCard flat :max-width="500" class="mt-12 mt-sm-0 pa-4">
+        <VCardText>
+          <h4 class="text-h4 mb-1">Adventure starts here 🚀</h4>
+          <p class="mb-0">Make your app management easy and fun!</p>
+        </VCardText>
+
+        <VCardText>
+          <VForm @submit.prevent="signup" ref="formRef">
+            <FormErrorAlert v-if="auth.errors" :errors="auth.errors" />
+            <VRow>
+              <!-- Username -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="form.firstName"
+                  :rules="[requiredValidator]"
+                  autofocus
+                  label="First Name"
+                  placeholder="John"
+                />
+              </VCol>
+
+              <VCol cols="12">
+                <AppTextField
+                  v-model="form.lastName"
+                  :rules="[requiredValidator]"
+                  label="Last Name"
+                  placeholder="doe"
+                />
+              </VCol>
+
+              <!-- email -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="form.email"
+                  :rules="[requiredValidator, emailValidator]"
+                  label="Email"
+                  type="email"
+                  placeholder="johndoe@email.com"
+                />
+              </VCol>
+
+              <!-- password -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="form.password"
+                  :rules="[requiredValidator, passwordValidator]"
+                  label="Password"
+                  placeholder="············"
+                  :type="isPasswordVisible ? 'text' : 'password'"
+                  :append-inner-icon="
+                    isPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'
+                  "
+                  @click:append-inner="isPasswordVisible = !isPasswordVisible"
+                />
+                <AppTextField
+                  v-model="form.passwordConfirmation"
+                  :rules="[
+                    requiredValidator,
+                    (v: string) => confirmedValidator(v, form.password),
+                  ]"
+                  label="Confirm Password"
+                  placeholder="············"
+                  :type="isPasswordVisible ? 'text' : 'password'"
+                  :append-inner-icon="
+                    isPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'
+                  "
+                  @click:append-inner="isPasswordVisible = !isPasswordVisible"
+                />
+
+                <div class="d-flex align-center my-6">
+                  <VCheckbox id="privacy-policy" v-model="form.temp" inline />
+                  <VLabel for="privacy-policy" style="opacity: 1">
+                    <span class="me-1 text-high-emphasis">I agree to</span>
+                    <a href="javascript:void(0)" class="text-primary"
+                      >privacy policy & terms</a
+                    >
+                  </VLabel>
+                </div>
+
+                <VBtn block type="submit" :disabled="loading"> Sign up </VBtn>
+              </VCol>
+
+              <!-- create account -->
+              <VCol cols="12" class="text-center text-base">
+                <span class="d-inline-block">Already have an account?</span>
+                <NuxtLink
+                  class="text-primary ms-1 d-inline-block"
+                  :to="routes.auth.login"
+                >
+                  Sign in instead
+                </NuxtLink>
+              </VCol>
+
+              <VCol cols="12" class="d-flex align-center">
+                <VDivider />
+                <span class="mx-4">or</span>
+                <VDivider />
+              </VCol>
+
+              <!-- auth providers -->
+              <VCol cols="12" class="text-center">
+                <ViewsWebAuthenticationAuthProvider />
+              </VCol>
+            </VRow>
+          </VForm>
+        </VCardText>
+      </VCard>
+    </VCol>
+  </VRow>
 </template>
+
+<style lang="scss">
+@use "@core/scss/template/pages/page-auth.scss";
+</style>

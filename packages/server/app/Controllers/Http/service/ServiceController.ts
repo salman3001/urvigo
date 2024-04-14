@@ -25,7 +25,6 @@ export default class ServiceController extends BaseApiController {
       })
       .preload('images')
       .preload('variants')
-      .preload('images')
       .select([
         'id',
         'name',

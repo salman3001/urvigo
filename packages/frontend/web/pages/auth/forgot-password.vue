@@ -1,112 +1,133 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useGenerateImageVariant } from "@core/composable/useGenerateImageVariant";
+import { VNodeRenderer } from "@layouts/components/VNodeRenderer";
+import { themeConfig } from "@themeConfig";
 
-const auth = authStore();
-const isPwd = ref(true);
-const tab = ref('otp')
-const router = useRouter()
+import authV2ForgotPasswordIllustrationDark from "@images/pages/auth-v2-forgot-password-illustration-dark.png";
+import authV2ForgotPasswordIllustrationLight from "@images/pages/auth-v2-forgot-password-illustration-light.png";
+import authV2MaskDark from "@images/pages/misc-mask-dark.png";
+import authV2MaskLight from "@images/pages/misc-mask-light.png";
 
-const form = ref({
-  email: '',
-  otp: '',
-  password: '',
-  password_confirmation: '',
-  userType: userTypes.USER
+const form = reactive({
+  email: "",
+  userType: userTypes.USER,
 });
 
-const { execute: getOTP, loading: loadingOTP } = auth.getOtp({
-  onSuccess: () => {
-    tab.value = 'reset'
-  }
-})
+const authThemeImg = useGenerateImageVariant(
+  authV2ForgotPasswordIllustrationLight,
+  authV2ForgotPasswordIllustrationDark,
+);
 
-const { execute: resetPwd, loading: loadingReset } = auth.verifyOtpAndUpdatePWD({
-  onSuccess: () => {
-    tab.value = 'otp'
-    router.push({ name: 'home' })
-  }
-})
+const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark);
 
+definePageMeta({
+  layout: "blank",
+  unauthenticatedOnly: true,
+});
+
+const auth = authStore();
+
+const { execute: getOTP, loading } = auth.getOtp({
+  onSuccess: () => {
+    navigateTo({
+      path: routes.auth.reset_password,
+      query: {
+        email: form.email,
+      },
+    });
+  },
+});
 </script>
 
 <template>
-  <div class="row q--col-gutter-md q-pa-md q-pa-md-lg q-pa-md q-pa-lg-lg window-height" style="min-height: 100vh;">
-    <div class="col-12 col-md-7 column full-height">
-      <div class="col-1 ">
-        <BrandLogo size="200px" :to="routes.home" />
-      </div>
-
-      <div class="col-11 row justify-center items-center q-pt-md">
-        <q-card class="my-card q-pa-0 no-shadow" :class="$q.screen.lt.sm ? 'full-width' : ''"
-          :style="{ translate: $q.screen.gt.md ? '0px -50px' : 'none', width: $q.screen.gt.xs ? '500px' : 'auto' }">
-          <q-card-section :class="$q.screen.lt.sm ? 'q-pa-none' : ''">
-
-            <div class="text-h4 text-weight-bold">
-              Forgot password?
-            </div>
-            <p class="text-grey-8">Please enter your email</p>
-          </q-card-section>
-
-          <q-card-section class="q-pt-none " :class="$q.screen.lt.sm ? 'q-pa-none' : ''">
-            <q-tab-panels v-model="tab" animated>
-              <q-tab-panel name="otp" class="q-pa-none">
-                <q-form class="q-gutter-y-md" @submit="getOTP({ email: form.email, userType: 'customer' })">
-                  <div>
-                    <label>Email</label>
-                    <q-input outlined v-model="form.email" dense
-                      :rules="[rules.required('Email is required'), rules.email('Not a Valid Email')]" />
-                  </div>
-                  <q-btn color="primary" v-if="loadingOTP" :disable="true" style="width: 100%">
-                    <q-circular-progress indeterminate size="20px" class="q-px-10" :thickness="1" color="grey-8"
-                      track-color="orange-2" style="min-width: 8rem" />
-                  </q-btn>
-                  <q-btn v-else type="submit" color="primary" style="width: 100%">Get otp</q-btn>
-                </q-form>
-              </q-tab-panel>
-              <q-tab-panel name="reset">
-                <q-form class="q-gutter-y-md" @submit="() => { resetPwd(form) }">
-                  <div>
-                    <label>OTP</label>
-                    <q-input outlined v-model="form.otp" dense type="number"
-                      :rules="[rules.required(), rules.minLength(6, 'OTP must be of 6 charector')]" />
-                  </div>
-                  <div>
-                    <label>New Password</label>
-                    <q-input dense v-model="form.password" outlined :type="isPwd ? 'password' : 'text'"
-                      :rules="[rules.required('Required'), rules.minLength(9, 'Password must contain 9 charectors')]">
-                      <template v-slot:append>
-                        <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer"
-                          @click="isPwd = !isPwd" />
-                      </template>
-                    </q-input>
-                  </div>
-                  <div>
-                    <label>Confirm New Password</label>
-                    <q-input dense v-model="form.password_confirmation" outlined :type="isPwd ? 'password' : 'text'"
-                      :rules="[rules.required('Required'), rules.minLength(9, 'Password must contain 9 charectors'), rules.sameAs(form.password, 'Password doesnt match')]">
-
-                      <template v-slot:append>
-                        <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer"
-                          @click="isPwd = !isPwd" />
-                      </template>
-                    </q-input>
-                  </div>
-                  <q-btn color="primary" v-if="loadingReset" :disable="true" style="width: 100%">
-                    <q-circular-progress indeterminate size="20px" class="q-px-10" :thickness="1" color="grey-8"
-                      track-color="orange-2" style="min-width: 8rem" />
-                  </q-btn>
-                  <q-btn v-else type="submit" color="primary" style="width: 100%">Submit</q-btn>
-                </q-form>
-              </q-tab-panel>
-            </q-tab-panels>
-          </q-card-section>
-        </q-card>
-      </div>
+  <NuxtLink to="/">
+    <div class="auth-logo d-flex align-center gap-x-3">
+      <VNodeRenderer :nodes="themeConfig.app.logo" />
+      <h1 class="auth-title">
+        {{ themeConfig.app.title }}
+      </h1>
     </div>
-    <div class="col-12 col-md-5 gt-sm full-height">
-      <div class="fit rounded-borders" :style="{ backgroundImage: 'url(/images/login-art.jpg)' }"></div>
-    </div>
-  </div>
+  </NuxtLink>
 
+  <VRow class="auth-wrapper bg-surface" no-gutters>
+    <VCol md="8" class="d-none d-md-flex">
+      <div class="position-relative bg-background w-100 me-0">
+        <div
+          class="d-flex align-center justify-center w-100 h-100"
+          style="padding-inline: 150px"
+        >
+          <VImg
+            max-width="468"
+            :src="authThemeImg"
+            class="auth-illustration mt-16 mb-2"
+          />
+        </div>
+
+        <img
+          class="auth-footer-mask"
+          :src="authThemeMask"
+          alt="auth-footer-mask"
+          height="280"
+          width="100"
+        />
+      </div>
+    </VCol>
+
+    <VCol cols="12" md="4" class="d-flex align-center justify-center">
+      <VCard flat :max-width="500" class="mt-12 mt-sm-0 pa-4">
+        <VCardText>
+          <h4 class="text-h4 mb-1">Forgot Password? 🔒</h4>
+          <p class="mb-0">
+            Enter your email and we'll send you instructions to reset your
+            password
+          </p>
+        </VCardText>
+
+        <VCardText>
+          <FormCustom @submit="() => getOTP(form)">
+            <FormErrorAlert v-if="auth.errors" :errors="auth.errors" />
+            <VRow>
+              <!-- email -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="form.email"
+                  autofocus
+                  label="Email"
+                  type="email"
+                  placeholder="johndoe@email.com"
+                  :rules="[requiredValidator, emailValidator]"
+                />
+              </VCol>
+
+              <!-- Reset link -->
+              <VCol cols="12">
+                <VBtn block type="submit" :disabled="loading">
+                  Send Reset Link
+                </VBtn>
+              </VCol>
+
+              <!-- back to login -->
+              <VCol cols="12">
+                <NuxtLink
+                  class="d-flex align-center justify-center"
+                  :to="routes.auth.login"
+                >
+                  <VIcon
+                    icon="tabler-chevron-left"
+                    size="20"
+                    class="me-1 flip-in-rtl"
+                  />
+                  <span>Back to login</span>
+                </NuxtLink>
+              </VCol>
+            </VRow>
+          </FormCustom>
+        </VCardText>
+      </VCard>
+    </VCol>
+  </VRow>
 </template>
+
+<style lang="scss">
+@use "@core/scss/template/pages/page-auth.scss";
+</style>

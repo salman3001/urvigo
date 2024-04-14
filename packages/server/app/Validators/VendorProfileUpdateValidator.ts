@@ -38,6 +38,18 @@ export default class VendorProfileUpdateValidator {
         size: '5mb',
       })
     ),
+    firstName: schema.string.optional({ trim: true }, [rules.maxLength(50)]),
+    lastName: schema.string.optional({ trim: true }, [rules.maxLength(50)]),
+    businessName: schema.string.optional([rules.maxLength(100)]),
+    email: schema.string.optional({ trim: true }, [
+      rules.maxLength(255),
+      rules.email(),
+      rules.normalizeEmail({ allLowercase: true }),
+      rules.unique({ table: 'users', column: 'email', whereNot: { id: this.ctx.params.id } }),
+    ]),
+    password: schema.string.optional({ trim: true }, [rules.maxLength(50)]),
+    phone: schema.string.optional([rules.maxLength(15)]),
+    isActive: schema.boolean.optional(),
     profile: schema.object.optional().members({
       shortDesc: schema.string.optional([rules.maxLength(500)]),
       longDesc: schema.string.optional(),

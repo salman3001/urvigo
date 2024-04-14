@@ -38,7 +38,7 @@ class UseBookingApi extends useBaseApi<
   typeof updateForm
 > {
   constructor() {
-    super("/api/bookings", createForm, updateForm);
+    super("/api/bookings", createForm);
   }
 
   customerBookings(initialQry: InitialQuery) {

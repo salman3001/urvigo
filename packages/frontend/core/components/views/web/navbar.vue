@@ -10,6 +10,7 @@ import { VNodeRenderer } from "@layouts/components/VNodeRenderer";
 import { themeConfig } from "@themeConfig";
 import UserProfile from "@/layouts/components/UserProfile.vue";
 import NavBarNotifications from "@/layouts/components/NavBarNotifications.vue";
+import NavSearchBar from "@/layouts/components/NavSearchBar.vue";
 
 const display = useDisplay();
 const { user } = useAuth();
@@ -56,7 +57,7 @@ const menuItems: MenuItem[] = [
       { name: "My Requirement", to: { path: routes.service_requirement.list } },
       {
         name: "Post Requirement",
-        to: { path: routes.service_requirement.create },
+        to: { path: routes.service_requirement.list },
       },
       // { name: 'Payment', to: { name: 'front-pages-payment' } },
       // { name: 'Checkout', to: { name: 'front-pages-checkout' } },
@@ -345,6 +346,7 @@ const isPageActive = computed(() =>
         <VSpacer />
 
         <div class="d-flex gap-x-4">
+          <NavSearchBar v-if="!route.meta?.disableSearchbar" />
           <NavbarThemeSwitcher v-if="$vuetify.display.mdAndUp" />
 
           <!-- <VBtn v-if="$vuetify.display.lgAndUp" prepend-icon="tabler-shopping-cart" variant="elevated" color="primary"

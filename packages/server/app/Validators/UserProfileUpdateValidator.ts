@@ -29,6 +29,18 @@ export default class UserProfileUpdateValidator {
 
       size: '5mb',
     }),
+    firstName: schema.string.optional({ trim: true }, [rules.maxLength(50)]),
+    lastName: schema.string({ trim: true }, [rules.maxLength(50)]),
+    email: schema.string({ trim: true }, [
+      rules.maxLength(255),
+      rules.email(),
+      rules.normalizeEmail({ allLowercase: true }),
+      rules.unique({ table: 'users', column: 'email', whereNot: { id: this.ctx.params.id } }),
+    ]),
+    password: schema.string.optional({ trim: true }, [rules.maxLength(50)]),
+    phone: schema.string.optional([rules.maxLength(15)]),
+    isActive: schema.boolean.optional(),
+    isPublic: schema.boolean.optional(),
     address: schema.array.optional().members(
       schema.object().members({
         address: schema.string({ trim: true }),

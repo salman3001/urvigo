@@ -1,28 +1,37 @@
 <script setup lang="ts">
-import { hexToRgb } from '@layouts/utils'
-import { useTheme } from 'vuetify'
-import ScrollToTop from '@core/components/ScrollToTop.vue'
-import initCore from '@core/initCore'
-import { initConfigStore, useConfigStore } from '@core/stores/config'
-import { VSonner } from 'vuetify-sonner'
+import { hexToRgb } from "@layouts/utils";
+import { useTheme } from "vuetify";
+import ScrollToTop from "@core/components/ScrollToTop.vue";
+import initCore from "@core/initCore";
+import { initConfigStore, useConfigStore } from "@core/stores/config";
+import { VSonner } from "vuetify-sonner";
 
+const wishlist = wishlistStore();
+const { user } = useAuth();
 
-const { global } = useTheme()
+const { global } = useTheme();
 
 // ℹ️ Sync current theme with initial loader theme
-initCore()
-initConfigStore()
+initCore();
+initConfigStore();
 
-const configStore = useConfigStore()
-const { isMobile } = useDevice()
-if (isMobile)
-  configStore.appContentLayoutNav = 'vertical'
+const configStore = useConfigStore();
+const { isMobile } = useDevice();
+if (isMobile) configStore.appContentLayoutNav = "vertical";
+
+onMounted(() => {
+  if (user) {
+    wishlist.fetchWishlist();
+  }
+});
 </script>
 
 <template>
   <VLocaleProvider :rtl="configStore.isAppRTL">
     <!-- ℹ️ This is required to set the background color of active nav link based on currently active global theme's primary -->
-    <VApp :style="`--v-global-theme-primary: ${hexToRgb(global.current.value.colors.primary)}`">
+    <VApp
+      :style="`--v-global-theme-primary: ${hexToRgb(global.current.value.colors.primary)}`"
+    >
       <ClientOnly>
         <VSonner />
       </ClientOnly>

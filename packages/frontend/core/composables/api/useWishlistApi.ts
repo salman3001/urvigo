@@ -24,7 +24,7 @@ class UseWishlistApi extends useBaseApi<
   typeof updateForm
 > {
   constructor() {
-    super("/api/my-wishlist", createForm, updateForm);
+    super("/api/my-wishlist", createForm);
   }
 
   detailList() {

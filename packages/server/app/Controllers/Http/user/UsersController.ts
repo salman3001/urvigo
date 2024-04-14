@@ -7,6 +7,7 @@ import UserProfileUpdateValidator from 'App/Validators/UserProfileUpdateValidato
 import UserProfile from 'App/Models/UserProfile'
 import { ResponsiveAttachment } from '@ioc:Adonis/Addons/ResponsiveAttachment'
 import BaseApiController from '../BaseApiController'
+import Database from '@ioc:Adonis/Lucid/Database'
 
 export default class UsersController extends BaseApiController {
   public async index({ request, response, bouncer }: HttpContextContract) {
@@ -87,64 +88,77 @@ export default class UsersController extends BaseApiController {
     await bouncer.with('userPolicy').authorize('update', user)
     const profile = await UserProfile.findByOrFail('user_id', user.id)
 
-    const payload = await request.validate(UserProfileUpdateValidator)
-    if (payload.address) {
-      await profile.load('addresses')
+    const { address, image, social, skills, languages, ...payload } = await request.validate(
+      UserProfileUpdateValidator
+    )
 
-      if (profile.addresses) {
-        for (const address of profile.addresses) {
-          await address.delete()
+    await Database.transaction(async (trx) => {
+      user.useTransaction(trx)
+      profile.useTransaction(trx)
+
+      user.merge(payload)
+      await user.save()
+
+      if (address) {
+        await profile.load('addresses')
+
+        if (profile.addresses) {
+          for (const address of profile.addresses) {
+            await address.delete()
+          }
+          await profile.related('addresses').createMany(address)
+        } else {
+          await profile.related('addresses').createMany(address)
         }
-        await profile.related('addresses').createMany(payload.address)
-      } else {
-        await profile.related('addresses').createMany(payload.address)
       }
-    }
 
-    if (payload.social) {
-      await profile?.load('social')
-      if (profile?.social) {
-        await profile.social.delete()
-        await profile.related('social').create(payload.social)
-      } else {
-        await profile.related('social').create(payload.social)
+      if (social) {
+        await profile?.load('social')
+        if (profile?.social) {
+          await profile.social.delete()
+          await profile.related('social').create(social)
+        } else {
+          await profile.related('social').create(social)
+        }
       }
-    }
 
-    if (payload.image) {
-      profile.avatar = await ResponsiveAttachment.fromFile(payload.image)
-    }
-
-    if (payload.languages) {
-      await profile.load('languages')
-      if (profile.languages) {
-        profile.related('languages').detach()
-        await profile.related('languages').attach(payload.languages)
-      } else {
-        await profile.related('languages').attach(payload.languages)
+      if (image) {
+        profile.avatar = await ResponsiveAttachment.fromFile(image)
       }
-    }
 
-    if (payload.skills) {
-      await profile?.load('skills')
-      if (profile?.skills) {
-        await profile.related('skills').detach()
-        await profile.related('skills').createMany(payload.skills)
-      } else {
-        await profile.related('skills').createMany(payload.skills)
+      if (languages) {
+        await profile.load('languages')
+        if (profile.languages) {
+          profile.related('languages').detach()
+          await profile.related('languages').attach(languages)
+        } else {
+          await profile.related('languages').attach(languages)
+        }
       }
-    }
 
-    if (payload.NotificationSettings) {
-      profile.notificationSetting = payload.NotificationSettings
-    }
+      if (skills) {
+        await profile?.load('skills')
+        if (profile?.skills) {
+          await profile.related('skills').detach()
+          await profile.related('skills').createMany(skills)
+        } else {
+          await profile.related('skills').createMany(skills)
+        }
+      }
 
-    await profile.save()
+      if (payload.NotificationSettings) {
+        profile.notificationSetting = payload.NotificationSettings
+      }
+
+      await profile.save()
+    })
+
+    await user.load('profile')
 
     return response.custom({
       message: 'User Profile Updated!',
       code: 201,
-      data: profile,
+      data: user,
       success: true,
     })
   }

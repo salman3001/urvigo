@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { userTypes } from "@/utils/enums";
 
 const authStore = defineStore("Auth", () => {
-  const { fetcher, fetchRef } = useFetchRef();
+  const { fetcher, fetchRef, errors } = useFetchRef();
   const login = async (
     email: string,
     password: string,
@@ -106,6 +106,7 @@ const authStore = defineStore("Auth", () => {
     getOtp,
     verifyOtpAndUpdatePWD,
     logout,
+    errors,
   };
 });
 

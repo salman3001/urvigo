@@ -19,7 +19,7 @@ class UseServiceVariantApi extends useBaseApi<
   typeof updateForm
 > {
   constructor() {
-    super("/api/service-variants", createForm, updateForm);
+    super("/api/service-variants", createForm);
   }
 }
 

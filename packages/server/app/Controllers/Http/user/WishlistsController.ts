@@ -27,9 +27,12 @@ export default class WishlistsController extends BaseApiController {
   public async show({ response, bouncer, auth }: HttpContextContract) {
     await bouncer.with('WishlistPolicy').authorize('view')
 
-    const wishlist = await Wishlist.query().where('user_id', auth.user?.id!).preload('items', i => {
-      i.select('id')
-    }).firstOrFail()
+    const wishlist = await Wishlist.query()
+      .where('user_id', auth.user?.id!)
+      .preload('items', (i) => {
+        i.select('id')
+      })
+      .firstOrFail()
 
     return response.custom({
       code: 200,
@@ -42,28 +45,42 @@ export default class WishlistsController extends BaseApiController {
   public async showDetailList({ response, bouncer, auth }: HttpContextContract) {
     await bouncer.with('WishlistPolicy').authorize('view')
 
-    const wishlist = await Wishlist.query().where('user_id', auth.user?.id!).preload('items', i => {
-      i.preload('variants')
-        .preload('vendorUser', (v) => {
-          v.preload('profile')
-          v.withCount('reviews')
+    const wishlist = await Wishlist.query()
+      .where('user_id', auth.user?.id!)
+      .preload('items', (i) => {
+        i.preload('serviceCategory', (s) => {
+          s.select(['name'])
         })
-        .preload('reviews', (r) => {
-          r.preload('user', (u) => {
-            u.select(['first_name', 'last_name']).preload('profile', (p) => {
-              p.select('avatar')
-            })
+          .preload('serviceSubcategory', (s) => {
+            s.select(['id', 'name'])
           })
-          r.limit(10)
-        })
-        .preload('faq')
-        .preload('seo')
-        .preload('tags')
-        .preload('images')
-        .withCount('reviews', (r) => {
-          r.as('reviews_count')
-        })
-    }).firstOrFail()
+          .preload('tags', (s) => {
+            s.select(['id', 'name'])
+          })
+          .preload('images')
+          .preload('variants')
+          .select([
+            'id',
+            'name',
+            'slug',
+            'short_desc',
+            'is_active',
+            'geo_location',
+            'thumbnail',
+            'avg_rating',
+            'vendor_user_id',
+            'service_category_id',
+            'service_subcategory_id',
+            'created_at',
+          ])
+          .withCount('reviews', (r) => {
+            r.as('reviews_count')
+          })
+          .withAggregate('variants', (v) => {
+            v.min('price').as('starting_from')
+          })
+      })
+      .firstOrFail()
 
     return response.custom({
       code: 200,
@@ -79,11 +96,11 @@ export default class WishlistsController extends BaseApiController {
     const wishlist = await Wishlist.query().where('user_id', auth.user?.id!).firstOrFail()
 
     const vallidationSchema = schema.create({
-      serviceId: schema.number()
+      serviceId: schema.number(),
     })
 
     const payload = await request.validate({
-      schema: vallidationSchema
+      schema: vallidationSchema,
     })
 
     await wishlist.related('items').attach([payload.serviceId])

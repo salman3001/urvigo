@@ -54,7 +54,11 @@ const { data, pending } = await useAsyncData(async () => {
 
           <!-- Reviews -->
           <VWindowItem value="reviews">
-            <ViewsWebVendorProfileReviews />
+            <ViewsWebVendorProfileReviews
+              :avg_rating="Number(data?.avg_rating || 0)"
+              :reviews_count="data?.meta?.reviews_count || 0"
+              :vendor-id="data!.id"
+            />
           </VWindowItem>
         </VWindow>
       </ClientOnly>

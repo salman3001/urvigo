@@ -30,7 +30,7 @@ class UseBidApi extends useBaseApi<
   typeof updateForm
 > {
   constructor() {
-    super("/api/bids", createForm, updateForm);
+    super("/api/bids", createForm);
   }
 
   acceptNegotiate(initialForm: typeof acceptNegotiateForm) {

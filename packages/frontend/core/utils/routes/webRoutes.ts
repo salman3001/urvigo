@@ -11,9 +11,11 @@ export default {
     view: (slug: string) => `/blogs/blog-${slug}`,
   },
   account: {
-    settings: "/account/settings",
+    profile: "/account/profile",
     security: "/account/security",
+    settings: "/account/settings",
     wishlist: "/account/wishlist",
+    notifications: "/account/notifications",
   },
   bookings: {
     list: "/bookings",

@@ -32,7 +32,7 @@ class UseBidBookingApi extends useBaseApi<
   typeof updateForm
 > {
   constructor() {
-    super("/api/bid-bookings", createForm, updateForm);
+    super("/api/bid-bookings", createForm);
   }
 
   mylist(initialQry: InitialQuery) {

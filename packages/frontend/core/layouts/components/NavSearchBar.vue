@@ -4,6 +4,8 @@ import type { RouteLocationRaw } from "vue-router";
 // import type { SearchResults } from '@db/app-bar-search/types'
 import { useConfigStore } from "@core/stores/config";
 
+const config = useRuntimeConfig();
+
 interface Suggestion {
   icon: string;
   title: string;
@@ -37,23 +39,18 @@ const suggestionGroups: SuggestionGroup[] = [
     content: [
       {
         icon: "tabler-chart-bar",
-        title: "Analytics",
-        url: { name: "dashboards-analytics" },
+        title: "Services",
+        url: { path: routes.services.list },
       },
       {
         icon: "tabler-chart-donut-3",
-        title: "CRM",
-        url: { name: "dashboards-crm" },
+        title: "Service Requirements",
+        url: { path: routes.service_requirement.list },
       },
       {
         icon: "tabler-shopping-cart",
-        title: "eCommerce",
-        url: { name: "dashboards-ecommerce" },
-      },
-      {
-        icon: "tabler-truck",
-        title: "Logistics",
-        url: { name: "dashboards-logistics" },
+        title: "Bookings",
+        url: { path: routes.bookings.list },
       },
     ],
   },
@@ -61,71 +58,70 @@ const suggestionGroups: SuggestionGroup[] = [
     title: "Apps & Pages",
     content: [
       {
-        icon: "tabler-calendar",
-        title: "Calendar",
-        url: { name: "apps-calendar" },
+        icon: "tabler-chart-bar",
+        title: "Vendor CRM",
+        url: { path: config.public.vendorBaseUrl + routes.vendor.dashboard },
       },
       {
-        icon: "tabler-lock",
-        title: "Roles & Permissions",
-        url: { name: "apps-roles" },
+        icon: "tabler-chart-donut-3",
+        title: "Blogs",
+        url: { path: routes.blogs.list },
       },
       {
-        icon: "tabler-settings",
-        title: "Account Settings",
-        url: { name: "pages-account-settings-tab", params: { tab: "account" } },
-      },
-      {
-        icon: "tabler-copy",
-        title: "Dialog Examples",
-        url: { name: "pages-dialog-examples" },
+        icon: "tabler-shopping-cart",
+        title: "Pricing",
+        url: { path: routes.pricing },
       },
     ],
   },
   {
-    title: "User Interface",
+    title: "Blogs",
     content: [
       {
         icon: "tabler-typography",
-        title: "Typography",
-        url: { name: "pages-typography" },
+        title: "Blogs 1",
+        url: { path: routes.blogs.list },
       },
       {
         icon: "tabler-menu-2",
-        title: "Accordion",
-        url: { name: "components-expansion-panel" },
+        title: "Blogs 2",
+        url: { path: routes.blogs.list },
       },
       {
         icon: "tabler-info-triangle",
-        title: "Alert",
-        url: { name: "components-alert" },
+        title: "Blogs 3",
+        url: { path: "components-alert" },
       },
       {
         icon: "tabler-checkbox",
-        title: "Cards",
-        url: { name: "pages-cards-card-basic" },
+        title: "Blogs 4",
+        url: { path: routes.blogs.list },
       },
     ],
   },
   {
-    title: "Forms & Tables",
+    title: "Faqs",
     content: [
       {
-        icon: "tabler-circle-dot",
-        title: "Radio",
-        url: { name: "forms-radio" },
+        icon: "tabler-typography",
+        title: "Faq 1",
+        url: { path: routes.faqs },
       },
       {
-        icon: "tabler-file-invoice",
-        title: "Form Layouts",
-        url: { name: "forms-form-layouts" },
+        icon: "tabler-menu-2",
+        title: "Faq 2",
+        url: { path: routes.faqs },
       },
       {
-        icon: "tabler-table",
-        title: "Table",
-        url: { name: "tables-data-table" },
+        icon: "tabler-info-triangle",
+        title: "Faq 3",
+        url: { path: routes.faqs },
       },
-      { icon: "tabler-edit", title: "Editor", url: { name: "forms-editors" } },
+      {
+        icon: "tabler-checkbox",
+        title: "Faq 4",
+        url: { path: routes.faqs },
+      },
     ],
   },
 ];
@@ -133,41 +129,40 @@ const suggestionGroups: SuggestionGroup[] = [
 // 👉 No Data suggestion
 const noDataSuggestions: Suggestion[] = [
   {
-    title: "Analytics",
-    icon: "tabler-chart-bar",
-    url: { name: "dashboards-analytics" },
+    title: "Services",
+    icon: "tabler-brand-azure",
+    url: { path: routes.services.list },
   },
   {
-    title: "CRM",
-    icon: "tabler-chart-donut-3",
-    url: { name: "dashboards-crm" },
+    title: "Blogs",
+    icon: "tabler-article",
+    url: { path: routes.blogs.list },
   },
   {
-    title: "eCommerce",
-    icon: "tabler-shopping-cart",
-    url: { name: "dashboards-ecommerce" },
+    title: "Faqs",
+    icon: "tabler-messages",
+    url: { path: routes.faqs },
   },
 ];
 
 const searchQuery = ref("");
 
-const router = useRouter();
 const searchResult = ref<any[]>([]);
 
-// const fetchResults = async () => {
-//   isLoading.value = true;
+const fetchResults = async () => {
+  isLoading.value = true;
 
-//   const { data } = await useApi<any>("");
+  // const { data } = await useApi<any>("");
 
-//   searchResult.value = data.value;
+  // searchResult.value = data.value;
 
-//   // ℹ️ simulate loading: we have used setTimeout for better user experience your can remove it
-//   setTimeout(() => {
-//     isLoading.value = false;
-//   }, 500);
-// };
+  // ℹ️ simulate loading: we have used setTimeout for better user experience your can remove it
+  setTimeout(() => {
+    isLoading.value = false;
+  }, 500);
+};
 
-// watch(searchQuery, fetchResults);
+watch(searchQuery, fetchResults);
 
 const closeSearchBar = () => {
   isAppSearchBarVisible.value = false;
@@ -176,7 +171,7 @@ const closeSearchBar = () => {
 
 // 👉 redirect the selected page
 const redirectToSuggestedPage = (selected: Suggestion) => {
-  router.push(selected.url as string);
+  navigateTo(selected.url as string);
   closeSearchBar();
 };
 
@@ -256,7 +251,12 @@ const LazyAppBarSearch = defineAsyncComponent(
 
     <!-- no data suggestion -->
 
-    <!-- <template #noDataSuggestion>
+    <template #noDataSuggestion>
+      <NuxtLink
+        :to="{ path: routes.services.list, query: { search: searchQuery } }"
+        class="text-h5 text-primary"
+        >Search for "{{ searchQuery }}" in services</NuxtLink
+      >
       <div class="mt-9">
         <span class="d-flex justify-center text-disabled mb-2"
           >Try searching for</span
@@ -271,7 +271,7 @@ const LazyAppBarSearch = defineAsyncComponent(
           <span>{{ suggestion.title }}</span>
         </h6>
       </div>
-    </template> -->
+    </template>
 
     <!-- search result -->
 

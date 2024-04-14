@@ -125,6 +125,7 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark);
               }
             "
           >
+            <FormErrorAlert v-if="auth.errors" :errors="auth.errors" />
             <VRow>
               <!-- email -->
               <VCol cols="12">
@@ -156,19 +157,24 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark);
                   class="d-flex align-center flex-wrap justify-space-between mt-2 mb-4"
                 >
                   <!-- <VCheckbox v-model="form.remember" label="Remember me" /> -->
-                  <a class="text-primary ms-2 mb-1" href="#">
+                  <NuxtLink
+                    class="text-primary ms-2 mb-1"
+                    :to="routes.auth.forgot_password"
+                  >
                     Forgot Password?
-                  </a>
+                  </NuxtLink>
                 </div>
 
-                <VBtn block type="submit"> Login </VBtn>
+                <VBtn block type="submit" :disabled="loading"> Login </VBtn>
               </VCol>
 
               <!-- create account -->
               <VCol cols="12" class="text-center">
                 <span>New on our platform?</span>
 
-                <a class="text-primary ms-2" href="#"> Create an account </a>
+                <NuxtLink class="text-primary ms-2" :to="routes.auth.sign_up">
+                  Create an account
+                </NuxtLink>
               </VCol>
               <VCol cols="12" class="d-flex align-center">
                 <VDivider />

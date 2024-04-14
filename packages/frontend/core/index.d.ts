@@ -4,9 +4,10 @@ declare module "#app" {
     subject?: string;
     layoutWrapperClasses?: string;
     navActiveLink?: RouteLocationRaw;
-
+    disableSearchbar: boolean;
     unauthenticatedOnly?: boolean;
     public?: boolean;
+    activeTab: string;
   }
 }
 

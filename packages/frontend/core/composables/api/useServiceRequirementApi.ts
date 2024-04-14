@@ -42,7 +42,7 @@ class UseServiceRequirementApi extends useBaseApi<
   typeof updateForm
 > {
   constructor() {
-    super("/api/service-requirements", createForm, updateForm);
+    super("/api/service-requirements", createForm);
   }
 
   myList(initialQuery: InitialQuery) {

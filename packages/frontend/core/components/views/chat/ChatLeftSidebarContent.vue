@@ -2,6 +2,7 @@
 import { PerfectScrollbar } from "vue3-perfect-scrollbar";
 import Conversations from "./Conversations.vue";
 import dummyAvatar from "@images/dummy-avatar.webp";
+
 const search = ref("");
 
 // mine
@@ -21,22 +22,21 @@ const emit = defineEmits<{
 }>();
 
 const route = useRoute();
-const { fetcher } = useFetchRef();
 const getImageUrl = useGetImageUrl();
 const user = useCookie("user") as unknown as Ref<IUser>;
 
-const { data, pending, refresh } = await useAsyncData(async () => {
-  const data = await fetcher<IPageRes<IConversation[]>>(
-    apiRoutes.chat.conversations.list,
-    {
-      query: {
-        page: 1,
-      } as IQs,
-    },
-  );
-
-  return data.data;
+const { query, list } = useChatApi.list({
+  page: 1,
+  search: "",
 });
+
+const { data, pending, refresh } = await useAsyncData(
+  async () => {
+    const data = await list();
+    return data.data;
+  },
+  { watch: [query] },
+);
 
 if (route.query?.newConversationId) {
   const existingConversation = data.value?.data.filter(
@@ -79,6 +79,14 @@ watch(
     }
   },
 );
+
+const debouncedSearch = useDebounceFn(() => {
+  query.search = search.value;
+}, 1000);
+
+watch(search, () => {
+  debouncedSearch();
+});
 </script>
 
 <template>

@@ -6,8 +6,6 @@ const props = defineProps<{
     rule: string;
   }[];
 }>();
-
-console.log(props.errors);
 </script>
 
 <template>

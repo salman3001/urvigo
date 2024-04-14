@@ -64,7 +64,7 @@ class UseServiceApi extends useBaseApi<
   typeof updateForm
 > {
   constructor() {
-    super("/api/service", createForm, updateForm);
+    super("/api/service", createForm);
   }
 
   myList(initialQuery: InitialQuery) {

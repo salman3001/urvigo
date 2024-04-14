@@ -19,7 +19,7 @@ class UseServiceTagApi extends useBaseApi<
   typeof updateForm
 > {
   constructor() {
-    super("/api/service-tags", createForm, updateForm);
+    super("/api/service-tags", createForm);
   }
 }
 

@@ -27,7 +27,7 @@ class UseChatApi extends useBaseApi<
   typeof updateForm
 > {
   constructor() {
-    super("/api/chat/conversations/", createForm, updateForm);
+    super("/api/chat/conversations/", createForm);
   }
 
   messages() {

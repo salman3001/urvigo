@@ -26,12 +26,13 @@ export default class BaseApiController {
         const value = qs[key]
 
         if (value) {
+          const newVal = `%${qs[key]}%`
           if (key === 'search') {
             opt?.searchFields?.forEach((field, i) => {
               if (i == 0) {
-                modelQuery.whereILike(field, value)
+                modelQuery.whereILike(field, newVal)
               } else {
-                modelQuery.orWhereILike(field, value)
+                modelQuery.orWhereILike(field, newVal)
               }
             })
           }
@@ -52,7 +53,9 @@ export default class BaseApiController {
     return modelQuery
   }
 
-  public extraFilters(modelQuery: ModelQueryBuilderContract<any, any>, request: HttpContextContract['request'], opt?: Record<any, any>) {
-
-  }
+  public extraFilters(
+    modelQuery: ModelQueryBuilderContract<any, any>,
+    request: HttpContextContract['request'],
+    opt?: Record<any, any>
+  ) {}
 }

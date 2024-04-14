@@ -10,3 +10,4 @@ export { useBidApi } from "./api/useBidApi";
 export { useBidBookingApi } from "./api/useBidBookingApi";
 export { useBookingApi } from "./api/useBookingApi";
 export { useServiceVariantApi } from "./api/useServiceVariantApi";
+export { useUserApi } from "./api/useUserApi";
