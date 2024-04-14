@@ -1,29 +1,22 @@
 <script lang="ts" setup>
 import { PerfectScrollbar } from "vue3-perfect-scrollbar";
-import { useChat } from "./useChat";
-import { useChatStore } from "./useChatStore";
+import dummyAvatar from "@images/dummy-avatar.webp";
 
 defineEmits<{
   (e: "close"): void;
 }>();
 
 // composables
-const store = useChatStore();
-const { resolveAvatarBadgeVariant } = useChat();
 
-const userStatusRadioOptions = [
-  { title: "Online", value: "online", color: "success" },
-  { title: "Away", value: "away", color: "warning" },
-  { title: "Do not disturb", value: "busy", color: "error" },
-  { title: "Offline", value: "offline", color: "secondary" },
-];
+const getImageUrl = useGetImageUrl();
+const { user } = useAuth();
 
 const isAuthenticationEnabled = ref(true);
 const isNotificationEnabled = ref(false);
 </script>
 
 <template>
-  <template v-if="store.profileUser">
+  <template v-if="user">
     <!-- Close Button -->
     <div class="pt-2 me-2 text-end">
       <IconBtn @click="$emit('close')">
@@ -38,32 +31,30 @@ const isNotificationEnabled = ref(false);
         offset-x="7"
         offset-y="4"
         bordered
-        :color="resolveAvatarBadgeVariant(store.profileUser.status)"
+        :color="'success'"
         class="chat-user-profile-badge mb-3"
       >
-        <VAvatar
-          size="84"
-          :variant="!store.profileUser.avatar ? 'tonal' : undefined"
-          :color="
-            !store.profileUser.avatar
-              ? resolveAvatarBadgeVariant(store.profileUser.status)
-              : undefined
-          "
-        >
+        <VAvatar size="84" :variant="'tonal'" :color="'success'">
           <VImg
-            v-if="store.profileUser.avatar"
-            :src="store.profileUser.avatar"
+            v-if="user?.profile?.avatar"
+            :src="
+              getImageUrl(
+                user?.profile?.avatar?.breakpoints?.thumbnail?.url,
+                dummyAvatar,
+              )
+            "
+            :alt="user?.first_name + ' ' + user?.last_name"
           />
           <span v-else class="text-3xl">{{
-            avatarText(store.profileUser.fullName)
+            avatarText(user?.first_name + " " + user?.last_name)
           }}</span>
         </VAvatar>
       </VBadge>
       <h5 class="text-h5">
-        {{ store.profileUser.fullName }}
+        {{ user?.first_name || "" + " " + user?.last_name }}
       </h5>
       <p class="text-capitalize text-medium-emphasis mb-0">
-        {{ store.profileUser.role }}
+        {{ user.userType }}
       </p>
     </div>
 
@@ -77,17 +68,18 @@ const isNotificationEnabled = ref(false);
         <div for="textarea-user-about" class="text-base text-disabled">
           ABOUT
         </div>
-        <AppTextarea
+        lorem lkansd lkjals daskloqwiro wef sdjklhf dsf asdkflka jsdajsd la
+        <!-- <AppTextarea
           id="textarea-user-about"
           v-model="store.profileUser.about"
           auto-grow
           class="mt-1"
           rows="3"
-        />
+        /> -->
       </div>
 
       <!-- Status -->
-      <div class="mb-6">
+      <!-- <div class="mb-6">
         <div class="text-base text-disabled">STATUS</div>
         <VRadioGroup v-model="store.profileUser.status" class="mt-1">
           <VRadio
@@ -98,7 +90,7 @@ const isNotificationEnabled = ref(false);
             :color="radioOption.color"
           />
         </VRadioGroup>
-      </div>
+      </div> -->
 
       <!-- Settings -->
       <div class="text-medium-emphasis">

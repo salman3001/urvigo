@@ -1,19 +1,20 @@
 <script lang="ts" setup>
 import { PerfectScrollbar } from "vue3-perfect-scrollbar";
-import { useChat } from "./useChat";
-import { useChatStore } from "./useChatStore";
+import dummyAvatar from "@images/dummy-avatar.webp";
 
 defineEmits<{
   (e: "close"): void;
 }>();
 
-const store = useChatStore();
+defineProps<{
+  selectedParticipant?: IAdminUser | IVendorUser | IUser;
+}>();
 
-const { resolveAvatarBadgeVariant } = useChat();
+const getImageUrl = useGetImageUrl();
 </script>
 
 <template>
-  <template v-if="true">
+  <template v-if="selectedParticipant">
     <!-- Close Button -->
     <div
       class="pt-6 px-6"
@@ -31,29 +32,41 @@ const { resolveAvatarBadgeVariant } = useChat();
         offset-x="7"
         offset-y="4"
         bordered
-        :color="resolveAvatarBadgeVariant(store.activeChat.contact.status)"
+        :color="'success'"
         class="chat-user-profile-badge mb-5"
       >
-        <VAvatar
-          size="84"
-          :variant="!store.activeChat.contact.avatar ? 'tonal' : undefined"
-          :color="
-            !store.activeChat.contact.avatar
-              ? resolveAvatarBadgeVariant(store.activeChat.contact.status)
-              : undefined
-          "
-        >
+        <VAvatar size="84" :variant="'tonal'" :color="'success'">
           <VImg
-            v-if="store.activeChat.contact.avatar"
-            :src="store.activeChat.contact.avatar"
+            v-if="selectedParticipant?.profile?.avatar"
+            :src="
+              getImageUrl(
+                selectedParticipant?.profile?.avatar?.breakpoints?.thumbnail
+                  ?.url,
+                dummyAvatar,
+              )
+            "
+            :alt="
+              selectedParticipant?.first_name ||
+              '' + ' ' + selectedParticipant?.last_name
+            "
           />
           <span v-else class="text-3xl">{{
-            avatarText(store.activeChat.contact.fullName)
+            avatarText(
+              selectedParticipant?.first_name ||
+                "" + " " + selectedParticipant?.last_name,
+            )
           }}</span>
         </VAvatar>
       </VBadge>
-      <h5 class="text-h5">salman khan</h5>
-      <p class="text-capitalize text-body-1 mb-0">admin</p>
+      <h5 class="text-h5">
+        {{
+          selectedParticipant?.first_name ||
+          "" + " " + selectedParticipant?.last_name
+        }}
+      </h5>
+      <p class="text-capitalize text-body-1 mb-0">
+        {{ selectedParticipant.userType }}
+      </p>
     </div>
 
     <!-- User Data -->
@@ -64,7 +77,10 @@ const { resolveAvatarBadgeVariant } = useChat();
       <!-- About -->
       <div class="my-6">
         <div class="text-sm text-disabled">ABOUT</div>
-        <p class="mt-1 mb-6">about me</p>
+        <p class="mt-1 mb-6">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus,
+          iure?
+        </p>
       </div>
 
       <!-- Personal Information -->
@@ -72,11 +88,11 @@ const { resolveAvatarBadgeVariant } = useChat();
         <div class="text-sm text-disabled mb-1">PERSONAL INFORMATION</div>
         <div class="d-flex align-center text-high-emphasis pa-2">
           <VIcon class="me-2" icon="tabler-mail" size="22" />
-          <div class="text-base">lucifer@email.com</div>
+          <div class="text-base">{{ selectedParticipant.email }}</div>
         </div>
         <div class="d-flex align-center text-high-emphasis pa-2">
           <VIcon class="me-2" icon="tabler-phone" size="22" />
-          <div class="text-base">+1(123) 456 - 7890</div>
+          <div class="text-base">{{ selectedParticipant.phone }}</div>
         </div>
         <div class="d-flex align-center text-high-emphasis pa-2">
           <VIcon class="me-2" icon="tabler-clock" size="22" />

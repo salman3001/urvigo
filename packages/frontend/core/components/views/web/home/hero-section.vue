@@ -18,7 +18,7 @@ const theme = useTheme();
         "
       >
         <VContainer>
-          <div class="hero-text-box text-center px-6">
+          <div class="hero-text-box text-center px-6 mt-sm-16">
             <h1 class="hero-title mb-4">
               One place to manage all your services
             </h1>
@@ -49,14 +49,14 @@ const theme = useTheme();
 
                 <VBtn
                   :size="$vuetify.display.smAndUp ? 'large' : 'default'"
-                  :to="routes.service_requirement.create"
+                  :to="routes.service_requirement.list"
                   :active="false"
                 >
                   PersonaliZe Service
                 </VBtn>
               </div>
             </div>
-            <div class="mt-16 pt-8">
+            <div class="mt-sm-16 pt-8">
               <NavSearchBar :inputVisible="true" />
             </div>
           </div>

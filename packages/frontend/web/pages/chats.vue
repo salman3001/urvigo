@@ -9,9 +9,7 @@ definePageMeta({
   <br />
   <br />
   <br />
-  <br />
-  <br />
-  <VContainer fluid>
+  <VContainer>
     <ViewsChat />
   </VContainer>
 </template>

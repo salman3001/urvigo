@@ -6,71 +6,25 @@ import ChatActiveChatUserProfileSidebarContent from "./ChatActiveChatUserProfile
 import ChatLeftSidebarContent from "./ChatLeftSidebarContent.vue";
 import ChatLog from "./ChatLog.vue";
 import ChatUserProfileSidebarContent from "./ChatUserProfileSidebarContent.vue";
-import { useChat } from "./useChat";
-import { useChatStore } from "./useChatStore";
+import dummyAvatar from "@images/dummy-avatar.webp";
 
 // composables
 const vuetifyDisplays = useDisplay();
-const store = useChatStore();
 const { isLeftSidebarOpen } = useResponsiveLeftSidebar(
   vuetifyDisplays.smAndDown,
 );
-const { resolveAvatarBadgeVariant } = useChat();
 
 // Perfect scrollbar
 const chatLogPS = ref();
 
 const scrollToBottomInChatLog = () => {
   const scrollEl = chatLogPS.value.$el || chatLogPS.value;
-
   scrollEl.scrollTop = scrollEl.scrollHeight;
 };
 
-// Search query
-const q = ref("");
-
-watch(q, (val) => store.fetchChatsAndContacts(val), { immediate: true });
-
-// Open Sidebar in smAndDown when "start conversation" is clicked
 const startConversation = () => {
   if (vuetifyDisplays.mdAndUp.value) return;
   isLeftSidebarOpen.value = true;
-};
-
-// Chat message
-const msg = ref("");
-
-const sendMessage = async () => {
-  if (!msg.value) return;
-
-  await store.sendMsg(msg.value);
-
-  // Reset message input
-  msg.value = "";
-
-  // Scroll to bottom
-  nextTick(() => {
-    scrollToBottomInChatLog();
-  });
-};
-
-const openChatOfContact = async (userId: number) => {
-  await store.getChat(userId);
-
-  // Reset message input
-  msg.value = "";
-
-  // Set unseenMsgs to 0
-  const contact = store.chatsContacts.find((c) => c.id === userId);
-  if (contact) contact.chat.unseenMsgs = 0;
-
-  // if smAndDown =>  Close Chat & Contacts left sidebar
-  if (vuetifyDisplays.smAndDown.value) isLeftSidebarOpen.value = false;
-
-  // Scroll to bottom
-  nextTick(() => {
-    scrollToBottomInChatLog();
-  });
 };
 
 // User profile sidebar
@@ -91,6 +45,88 @@ const chatContentContainerBg = computed(() => {
 
   return color;
 });
+
+// mine
+
+const selectedConversation = ref<IConversation | null>(null);
+const getImageUrl = useGetImageUrl();
+const { fetcher } = useFetchRef();
+const message = ref("");
+const newMessage = ref<null | IMessage>(null);
+const user = useCookie("user") as unknown as Ref<IUser>;
+const { connectSocket, disconnectSocket, socket } = useSocket();
+
+const myIdentifier = `${user?.value?.userType}-${user?.value?.id}`;
+
+const createMessage = async () => {
+  if (message.value.length > 0) {
+    try {
+      const res = await fetcher(
+        apiRoutes.chat.conversations.create_message(
+          selectedConversation.value!.id,
+        ),
+        {
+          method: "post",
+          body: {
+            body: message.value,
+          },
+        },
+      );
+
+      message.value = "";
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  nextTick(() => {
+    scrollToBottomInChatLog();
+  });
+};
+
+const openChatOfConversation = async (conversation: IConversation) => {
+  selectedConversation.value = conversation;
+  if (vuetifyDisplays.smAndDown.value) isLeftSidebarOpen.value = false;
+  nextTick(() => {
+    scrollToBottomInChatLog();
+  });
+};
+
+const selectedParticipant = computed(() => {
+  if (selectedConversation.value?.participant_one_identifier != myIdentifier) {
+    return (
+      selectedConversation.value?.participantOne?.adminUser ||
+      selectedConversation.value?.participantOne?.user ||
+      selectedConversation.value?.participantOne?.vendorUser
+    );
+  } else if (
+    selectedConversation.value?.participant_two_identifier != myIdentifier
+  ) {
+    return (
+      selectedConversation.value?.participantTwo?.adminUser ||
+      selectedConversation.value?.participantTwo?.user ||
+      selectedConversation.value?.participantTwo?.vendorUser
+    );
+  } else {
+    return null;
+  }
+});
+
+onMounted(() => {
+  connectSocket("/chat/");
+  socket?.value?.on("new-message", (message: IMessage) => {
+    newMessage.value = message;
+  });
+});
+
+onUnmounted(() => {
+  disconnectSocket();
+  socket.value?.removeAllListeners();
+});
+
+const temp = () => {
+  console.log("logged");
+};
 </script>
 
 <template>
@@ -106,6 +142,8 @@ const chatContentContainerBg = computed(() => {
       width="370"
     >
       <ChatUserProfileSidebarContent
+        :selectedConversation="selectedConversation"
+        :selectedParticipant="selectedParticipant"
         @close="isUserProfileSidebarOpen = false"
       />
     </VNavigationDrawer>
@@ -120,9 +158,10 @@ const chatContentContainerBg = computed(() => {
       touchless
       class="active-chat-user-profile-sidebar"
     >
-      <!-- <ChatActiveChatUserProfileSidebarContent
+      <ChatActiveChatUserProfileSidebarContent
+        :selected-participant="selectedParticipant!"
         @close="isActiveChatUserProfileSidebarOpen = false"
-      /> -->
+      />
     </VNavigationDrawer>
 
     <!-- 👉 Left sidebar   -->
@@ -136,22 +175,24 @@ const chatContentContainerBg = computed(() => {
       class="chat-list-sidebar"
       :permanent="$vuetify.display.mdAndUp"
     >
-      <!-- <ChatLeftSidebarContent
+      <ChatLeftSidebarContent
+        :selectedConversation="selectedConversation!"
+        :new-message="newMessage"
         v-model:isDrawerOpen="isLeftSidebarOpen"
-        v-model:search="q"
-        @open-chat-of-contact="openChatOfContact"
+        @open-chat-of-conversation="openChatOfConversation"
         @show-user-profile="isUserProfileSidebarOpen = true"
         @close="isLeftSidebarOpen = false"
-      /> -->
+      />
     </VNavigationDrawer>
 
     <!-- 👉 Chat content -->
     <VMain class="chat-content-container">
       <!-- 👉 Right content: Active Chat -->
-      <div v-if="store.activeChat" class="d-flex flex-column h-100">
+      <div v-if="selectedConversation" class="d-flex flex-column">
         <!-- 👉 Active chat header -->
         <div
           class="active-chat-header d-flex align-center text-medium-emphasis bg-surface"
+          v-if="selectedParticipant"
         >
           <!-- Sidebar toggler -->
           <IconBtn class="d-md-none me-3" @click="isLeftSidebarOpen = true">
@@ -168,40 +209,50 @@ const chatContentContainerBg = computed(() => {
               location="bottom right"
               offset-x="3"
               offset-y="0"
-              :color="
-                resolveAvatarBadgeVariant(store.activeChat.contact.status)
-              "
+              :color="''"
               bordered
             >
               <VAvatar
                 size="40"
-                :variant="
-                  !store.activeChat.contact.avatar ? 'tonal' : undefined
-                "
-                :color="
-                  !store.activeChat.contact.avatar
-                    ? resolveAvatarBadgeVariant(store.activeChat.contact.status)
-                    : undefined
-                "
+                :variant="'tonal'"
+                :color="''"
                 class="cursor-pointer"
               >
                 <VImg
-                  v-if="store.activeChat.contact.avatar"
-                  :src="store.activeChat.contact.avatar"
-                  :alt="store.activeChat.contact.fullName"
+                  v-if="selectedParticipant?.profile?.avatar"
+                  :src="
+                    getImageUrl(
+                      selectedParticipant?.profile?.avatar?.breakpoints
+                        ?.thumbnail?.url,
+                      dummyAvatar,
+                    )
+                  "
+                  :alt="
+                    selectedParticipant.first_name +
+                    ' ' +
+                    selectedParticipant.last_name
+                  "
                 />
                 <span v-else>{{
-                  avatarText(store.activeChat.contact.fullName)
+                  avatarText(
+                    selectedParticipant.first_name +
+                      " " +
+                      selectedParticipant.last_name,
+                  )
                 }}</span>
               </VAvatar>
             </VBadge>
 
             <div class="flex-grow-1 ms-4 overflow-hidden">
               <div class="text-h6 mb-0 font-weight-regular">
-                {{ store.activeChat.contact.fullName }}
+                {{
+                  selectedParticipant.first_name +
+                  " " +
+                  selectedParticipant.last_name
+                }}
               </div>
-              <p class="text-truncate mb-0 text-body-2">
-                {{ store.activeChat.contact.role }}
+              <p class="text-truncate mb-0 text-body-2 capitalize">
+                {{ selectedParticipant?.userType }}
               </p>
             </div>
           </div>
@@ -219,7 +270,7 @@ const chatContentContainerBg = computed(() => {
             <IconBtn>
               <VIcon icon="tabler-search" />
             </IconBtn>
-            <IconBtn>
+            <IconBtn @click="isActiveChatUserProfileSidebarOpen = true">
               <VIcon icon="tabler-dots-vertical" />
             </IconBtn>
           </div>
@@ -232,19 +283,28 @@ const chatContentContainerBg = computed(() => {
           ref="chatLogPS"
           tag="ul"
           :options="{ wheelPropagation: false }"
-          class="flex-grow-1"
+          min
+          class="flex-grow-1 d-flex flex-column-reverse"
+          style="height: 65vh"
+          @ps-x-reach-start="temp"
         >
-          <ChatLog />
+          <ChatLog
+            v-if="selectedConversation && selectedParticipant"
+            :selectedConversation="selectedConversation!"
+            :socket="socket"
+            :newMessage="newMessage"
+            :selectedParticipant="selectedParticipant"
+          />
         </PerfectScrollbar>
 
         <!-- Message form -->
         <VForm
           class="chat-log-message-form mb-5 mx-5"
-          @submit.prevent="sendMessage"
+          @submit.prevent="createMessage"
         >
           <VTextField
-            :key="store.activeChat?.contact.id"
-            v-model="msg"
+            :key="1"
+            v-model="message"
             variant="solo"
             density="default"
             class="chat-message-input"
@@ -259,7 +319,7 @@ const chatContentContainerBg = computed(() => {
                 <IconBtn @click="refInputEl?.click()">
                   <VIcon icon="tabler-paperclip" size="22" />
                 </IconBtn>
-                <VBtn @click="sendMessage">
+                <VBtn @click="createMessage">
                   <template #append>
                     <VIcon icon="tabler-send" color="#fff" />
                   </template>
@@ -280,7 +340,11 @@ const chatContentContainerBg = computed(() => {
       </div>
 
       <!-- 👉 Start conversation -->
-      <div v-else class="d-flex h-100 align-center justify-center flex-column">
+      <div
+        v-else
+        class="d-flex h-100 align-center justify-center flex-column"
+        style="min-height: 65vh"
+      >
         <VAvatar size="98" variant="tonal" color="primary" class="mb-4">
           <VIcon size="50" class="rounded-0" icon="tabler-message-2" />
         </VAvatar>

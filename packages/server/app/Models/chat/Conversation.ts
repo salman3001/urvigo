@@ -4,6 +4,8 @@ import ConversationParticipant from './ConversationParticipant'
 import Message from './Message'
 
 export default class Conversation extends BaseModel {
+  public serializeExtras = true
+
   @column({ isPrimary: true })
   public id: number
 

@@ -37,6 +37,5 @@ export default {
   service_requirement: {
     list: "/service-requirements",
     view: (id: number) => `/service-requirements/service-requirement-${id}`,
-    create: "/service-requirements/service-requirement-create",
   },
 };

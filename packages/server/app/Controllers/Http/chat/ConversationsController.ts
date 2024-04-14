@@ -56,6 +56,11 @@ export default class ConversationsController extends BaseApiController {
       .preload('messages', (m) => {
         m.orderBy('created_at', 'desc').limit(1)
       })
+      .withCount('messages', (m) => {
+        m.where('read', 0)
+          .whereNot('user_identifier', `${auth.user?.userType}-${auth.user?.id}`)
+          .as('unread_messages')
+      })
       .orderBy('created_at', 'desc')
 
     this.applyFilters(conversationQuery, request.qs(), { searchFields: ['name'] })
@@ -75,10 +80,17 @@ export default class ConversationsController extends BaseApiController {
     params,
     bouncer,
     request,
+    auth,
   }: HttpContextContract): Promise<ResponseContract> {
     const conversation = await Conversation.findOrFail(+params.id)
 
     await bouncer.with('ConversationPolicy').authorize('view', conversation)
+
+    await Message.query()
+      .where('conversation_id', conversation.id)
+      .whereNot('user_identifier', `${auth.user?.userType}-${auth.user?.id}`)
+      .update('read', 1)
+      .exec()
 
     const messagesQuery = Message.query()
       .where('conversation_id', conversation.id)

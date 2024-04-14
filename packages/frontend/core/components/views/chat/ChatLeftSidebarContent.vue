@@ -1,36 +1,95 @@
 <script lang="ts" setup>
 import { PerfectScrollbar } from "vue3-perfect-scrollbar";
-import { useChat } from "./useChat";
-import ChatContact from "./ChatContact.vue";
-import { useChatStore } from "./useChatStore";
+import Conversations from "./Conversations.vue";
+import dummyAvatar from "@images/dummy-avatar.webp";
+const search = ref("");
+
+// mine
+import { findObjectAndMoveToIndex0 } from "~/utils/helpers";
 
 const props = defineProps<{
-  search: string;
   isDrawerOpen: boolean;
+  newMessage: null | IMessage;
+  selectedConversation?: IConversation;
 }>();
 
 const emit = defineEmits<{
-  (e: "openChatOfContact", id: any): void;
+  (e: "openChatOfConversation", conversation: IConversation): void;
   (e: "showUserProfile"): void;
   (e: "close"): void;
   (e: "update:search", value: string): void;
 }>();
 
-const { resolveAvatarBadgeVariant } = useChat();
-const search = useVModel(props, "search", emit);
+const route = useRoute();
+const { fetcher } = useFetchRef();
+const getImageUrl = useGetImageUrl();
+const user = useCookie("user") as unknown as Ref<IUser>;
 
-const store = useChatStore();
+const { data, pending, refresh } = await useAsyncData(async () => {
+  const data = await fetcher<IPageRes<IConversation[]>>(
+    apiRoutes.chat.conversations.list,
+    {
+      query: {
+        page: 1,
+      } as IQs,
+    },
+  );
+
+  return data.data;
+});
+
+if (route.query?.newConversationId) {
+  const existingConversation = data.value?.data.filter(
+    (c) => c.id == (route.query.newConversationId as unknown as number),
+  );
+  if (existingConversation) {
+    emit("openChatOfConversation", existingConversation[0]);
+  } else {
+    refresh();
+  }
+}
+
+const conversationsRef = ref(data.value);
+
+watch(data, () => {
+  conversationsRef.value = data.value;
+});
+
+watch(
+  () => props.newMessage,
+  () => {
+    if (props.newMessage !== null) {
+      if (
+        conversationsRef.value?.data.some(
+          (c) => c.id == props.newMessage?.conversation_id,
+        )
+      ) {
+        const newData = findObjectAndMoveToIndex0(
+          conversationsRef?.value!.data,
+          props.newMessage,
+          "id",
+          "conversation_id",
+        );
+
+        conversationsRef.value.data = newData as IConversation[];
+        conversationsRef.value.data[0].messages[0] = props.newMessage;
+      } else {
+        refresh();
+      }
+    }
+  },
+);
 </script>
 
 <template>
   <!-- 👉 Chat list header -->
-  <div class="chat-list-header">
+  <div v-if="user" class="chat-list-header">
     <VBadge
       dot
       location="bottom right"
       offset-x="3"
       offset-y="3"
-      :color="'primary'"
+      :color="'success'"
       bordered
     >
       <VAvatar
@@ -38,7 +97,15 @@ const store = useChatStore();
         class="cursor-pointer"
         @click="$emit('showUserProfile')"
       >
-        <VImg :src="'snjakjk'" alt="John Doe" />
+        <VImg
+          :src="
+            getImageUrl(
+              user.profile?.avatar?.breakpoints?.thumbnail?.url,
+              dummyAvatar,
+            )
+          "
+          :alt="user.first_name + user.last_name"
+        />
       </VAvatar>
     </VBadge>
 
@@ -64,30 +131,22 @@ const store = useChatStore();
       <h5 class="chat-contact-header text-primary text-h5">Chats</h5>
     </li>
 
-    <ChatContact
-      v-for="contact in 3"
-      :key="`chat-1`"
-      :user="contact"
-      is-chat-contact
-      @click="$emit('openChatOfContact', 1)"
+    <Conversations
+      v-for="conversation in data?.data"
+      :key="conversation.id"
+      :conversation="conversation"
+      :selected-conversation="selectedConversation"
+      @click="
+        () => {
+          $emit('openChatOfConversation', conversation);
+        }
+      "
     />
 
-    <span v-show="true" class="no-chat-items-text text-disabled"
+    <span
+      v-show="Array.isArray(data?.data) && data.data.length < 1"
+      class="no-chat-items-text text-disabled"
       >No chats found</span
-    >
-    <!-- <li class="list-none pt-2">
-      <h5 class="chat-contact-header text-primary text-h5">Contacts</h5>
-    </li> -->
-
-    <!-- <ChatContact
-      v-for="contact in store.contacts"
-      :key="`chat-${contact.id}`"
-      :user="contact"
-      @click="$emit('openChatOfContact', contact.id)"
-    /> -->
-
-    <span v-show="true" class="no-chat-items-text text-disabled"
-      >No contacts found</span
     >
   </PerfectScrollbar>
 </template>

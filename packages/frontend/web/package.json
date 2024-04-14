@@ -42,6 +42,7 @@
     "prismjs": "1.29.0",
     "roboto-fontface": "0.10.0",
     "shepherd.js": "11.2.0",
+    "socket.io-client": "^4.7.5",
     "swiper": "11.0.7",
     "unplugin-vue-define-options": "1.4.2",
     "vue-chartjs": "5.3.0",
