@@ -1,5 +1,4 @@
 import { fileURLToPath } from "node:url";
-import svgLoader from "vite-svg-loader";
 import vuetify from "vite-plugin-vuetify";
 import { dirname, join } from "path";
 const currentDir = dirname(fileURLToPath(import.meta.url));
@@ -137,7 +136,6 @@ export default defineNuxtConfig({
     },
 
     plugins: [
-      svgLoader(),
       vuetify({
         // styles: {
         //   configFile: "../core/assets/styles/variables/_vuetify.scss",
