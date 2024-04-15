@@ -6,8 +6,8 @@
     "dev": "node ace serve --watch",
     "build": "node ace build --production --ignore-ts-errors",
     "start": "node server.js",
-    "build:prod": "npm cache clean --force && npm i && node ace build --production --ignore-ts-errors",
-    "start:prod": "cd build && node ace migration:run --force && node ace db:seed  && npm ci --production && node server.js",
+    "build:stage": "npm cache clean --force && npm i && node ace build --production --ignore-ts-errors",
+    "start:stage": "cd build && node ace migration:fresh --force && node ace db:seed  && npm ci --production && node server.js",
     "test": "node ace test",
     "lint": "eslint . --ext=.ts",
     "format": "prettier --write ."

@@ -30,8 +30,6 @@ export default defineNuxtConfig({
       webBaseUrl: "http://localhost:3000",
       vendorBaseUrl: "http://localhost:3001",
       adminBaseUrl: "http://localhost:3002",
-      NITRO_PORT: 3000,
-      NITRO_HOST: "http://localhost:3000",
     },
   },
 
