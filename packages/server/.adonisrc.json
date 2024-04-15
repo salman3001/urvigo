@@ -20,7 +20,6 @@
     "./start/routes",
     "./start/kernel",
     "./start/bouncer",
-    "./start/db.ts",
     {
       "file": "./start/validator",
       "environment": [
